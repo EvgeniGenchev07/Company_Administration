@@ -8,23 +8,23 @@ namespace DataLayer.Repositories
 {
     public class ProjectContext
     {
-        private readonly EapDbContext _eapDbContext;
+        private readonly CompanyAdministrationDbContext _companyAdministrationDbContext;
 
-        public ProjectContext(EapDbContext eapDbContext)
+        public ProjectContext(CompanyAdministrationDbContext companyAdministrationDbContext)
         {
-            _eapDbContext = eapDbContext ?? throw new ArgumentNullException(nameof(eapDbContext));
+            _companyAdministrationDbContext = companyAdministrationDbContext ?? throw new ArgumentNullException(nameof(companyAdministrationDbContext));
         }
 
         public bool Create(Project project)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlCommand(
                         "INSERT INTO Project (name, description, startDate, endDate) " +
                         "VALUES (@name, @description, @startDate, @endDate)",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@name", project.Name);
                     command.Parameters.AddWithValue("@description", project.Description ?? string.Empty);
@@ -32,12 +32,12 @@ namespace DataLayer.Repositories
                     command.Parameters.AddWithValue("@endDate", project.EndDate);
 
                     int rows = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rows > 0;
                 }
                 catch (Exception ex)
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     throw new Exception("Error creating project in the database.", ex);
                 }
             }
@@ -47,11 +47,11 @@ namespace DataLayer.Repositories
         public List<Project> GetAll()
         {
             var projects = new List<Project>();
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
-                    var command = new MySqlCommand("SELECT * FROM Project ORDER BY startDate DESC", _eapDbContext.Connection);
+                    var command = new MySqlCommand("SELECT * FROM Project ORDER BY startDate DESC", _companyAdministrationDbContext.Connection);
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -75,7 +75,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
                 return projects;
             }
@@ -84,11 +84,11 @@ namespace DataLayer.Repositories
 
         public Project? GetById(int id)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
-                    var command = new MySqlCommand("SELECT * FROM Project WHERE id = @id", _eapDbContext.Connection);
+                    var command = new MySqlCommand("SELECT * FROM Project WHERE id = @id", _companyAdministrationDbContext.Connection);
                     command.Parameters.AddWithValue("@id", id);
 
                     using (var reader = command.ExecuteReader())
@@ -115,7 +115,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -123,14 +123,14 @@ namespace DataLayer.Repositories
 
         public bool Update(Project project)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlCommand(
                         "UPDATE Project SET name = @name, description = @description, " +
                         "startDate = @startDate, endDate = @endDate WHERE id = @id",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@id", project.Id);
                     command.Parameters.AddWithValue("@name", project.Name);
@@ -139,12 +139,12 @@ namespace DataLayer.Repositories
                     command.Parameters.AddWithValue("@endDate", project.EndDate);
 
                     int rows = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rows > 0;
                 }
                 catch (Exception ex)
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     throw new Exception("Error updating project in the database.", ex);
                 }
             }
@@ -153,20 +153,20 @@ namespace DataLayer.Repositories
 
         public bool Delete(int id)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
-                    var command = new MySqlCommand("DELETE FROM Project WHERE id = @id", _eapDbContext.Connection);
+                    var command = new MySqlCommand("DELETE FROM Project WHERE id = @id", _companyAdministrationDbContext.Connection);
                     command.Parameters.AddWithValue("@id", id);
 
                     int rows = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rows > 0;
                 }
                 catch (Exception ex)
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     throw new Exception("Error deleting project from the database.", ex);
                 }
             }

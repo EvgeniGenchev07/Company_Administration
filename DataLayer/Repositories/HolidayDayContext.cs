@@ -7,35 +7,35 @@ namespace DataLayer.Repositories
 {
     public class HolidayDayContext
     {
-        private readonly EapDbContext _eapDbContext;
+        private readonly CompanyAdministrationDbContext _companyAdministrationDbContext;
 
-        public HolidayDayContext(EapDbContext eapDbContext)
+        public HolidayDayContext(CompanyAdministrationDbContext companyAdministrationDbContext)
         {
-            _eapDbContext = eapDbContext ?? throw new ArgumentNullException(nameof(eapDbContext));
+            _companyAdministrationDbContext = companyAdministrationDbContext ?? throw new ArgumentNullException(nameof(companyAdministrationDbContext));
         }
 
         public bool Create(HolidayDay holiday)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlCommand(
                         "INSERT INTO HolidayDay (name, date, isCustom) " +
                         "VALUES (@name, @date, @isCustom)",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@name", holiday.Name);
                     command.Parameters.AddWithValue("@date", holiday.Date);
                     command.Parameters.AddWithValue("@isCustom", holiday.IsCustom);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     throw new Exception("Error creating holiday in the database.", ex);
                 }
             }
@@ -44,11 +44,11 @@ namespace DataLayer.Repositories
         
         public HolidayDay? GetById(int id)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
-                    var command = new MySqlCommand("SELECT * FROM HolidayDay WHERE id = @id", _eapDbContext.Connection);
+                    var command = new MySqlCommand("SELECT * FROM HolidayDay WHERE id = @id", _companyAdministrationDbContext.Connection);
                     command.Parameters.AddWithValue("@id", id);
 
                     using (var reader = command.ExecuteReader())
@@ -73,7 +73,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -81,13 +81,13 @@ namespace DataLayer.Repositories
 
         public bool Update(HolidayDay holiday)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlCommand(
                         "UPDATE HolidayDay SET name = @name, date = @date, isCustom = @isCustom WHERE id = @id",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@id", holiday.Id);
                     command.Parameters.AddWithValue("@name", holiday.Name);
@@ -95,12 +95,12 @@ namespace DataLayer.Repositories
                     command.Parameters.AddWithValue("@isCustom", holiday.IsCustom);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     throw new Exception("Error updating holiday in the database.", ex);
                 }
             }
@@ -109,20 +109,20 @@ namespace DataLayer.Repositories
 
         public bool Delete(int id)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
-                    var command = new MySqlCommand("DELETE FROM HolidayDay WHERE id = @id", _eapDbContext.Connection);
+                    var command = new MySqlCommand("DELETE FROM HolidayDay WHERE id = @id", _companyAdministrationDbContext.Connection);
                     command.Parameters.AddWithValue("@id", id);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     throw new Exception("Error deleting holiday from the database.", ex);
                 }
             }
@@ -132,13 +132,13 @@ namespace DataLayer.Repositories
         public List<HolidayDay> GetAll()
         {
             var holidays = new List<HolidayDay>();
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlCommand(
                         "SELECT * FROM HolidayDay ORDER BY date DESC",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -160,7 +160,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
                 int year = DateTime.Now.Year;
 

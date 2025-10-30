@@ -2,11 +2,11 @@
 
 namespace DataLayer.Persistence
 {
-    public class EapDbContext
+    public class CompanyAdministrationDbContext
     {
         private readonly MySqlConnection _connection;
         public MySqlConnection Connection => _connection;
-        public EapDbContext(MySqlConnection connection)
+        public CompanyAdministrationDbContext(MySqlConnection connection)
         {
             _connection = connection;
         }

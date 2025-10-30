@@ -6,23 +6,23 @@ namespace DataLayer.Repositories
 {
     public class AbsenceContext
     {
-        private readonly EapDbContext _eapDbContext;
+        private readonly CompanyAdministrationDbContext _companyAdministrationDbContext;
 
-        public AbsenceContext(EapDbContext eapDbContext)
+        public AbsenceContext(CompanyAdministrationDbContext companyAdministrationDbContext)
         {
-            _eapDbContext = eapDbContext ?? throw new ArgumentNullException(nameof(eapDbContext));
+            _companyAdministrationDbContext = companyAdministrationDbContext ?? throw new ArgumentNullException(nameof(companyAdministrationDbContext));
         }
 
         public bool Create(Absence absence)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "INSERT INTO Absence (type, daysCount, daysTaken, created, status, startDate, userId) " +
                         "VALUES (@type, @daysCount, @daysTaken, @created, @status, @startDate, @userId)",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@type", (int)absence.Type);
                     command.Parameters.AddWithValue("@daysCount", absence.DaysCount);
@@ -33,7 +33,7 @@ namespace DataLayer.Repositories
                     command.Parameters.AddWithValue("@userId", absence.UserId);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
@@ -42,7 +42,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -50,14 +50,14 @@ namespace DataLayer.Repositories
 
         public bool Update(Absence absence)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "UPDATE Absence SET type = @type, daysCount = @daysCount, daysTaken = @daysTaken, " +
                         "status = @status, startDate = @startDate WHERE id = @id",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
                     command.Parameters.AddWithValue("@type", (int)absence.Type);
                     command.Parameters.AddWithValue("@daysCount", absence.DaysCount);
                     command.Parameters.AddWithValue("@daysTaken", absence.DaysTaken);
@@ -66,7 +66,7 @@ namespace DataLayer.Repositories
                     command.Parameters.AddWithValue("@id", absence.Id);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
@@ -75,7 +75,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -83,18 +83,18 @@ namespace DataLayer.Repositories
 
         public bool Delete(int absenceId)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "DELETE FROM Absence WHERE id = @id",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@id", absenceId);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
@@ -103,7 +103,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -111,13 +111,13 @@ namespace DataLayer.Repositories
 
         public Absence GetById(int absenceId)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "SELECT * FROM Absence WHERE id = @id",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@id", absenceId);
 
@@ -145,7 +145,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established or absence not found.");
@@ -154,13 +154,13 @@ namespace DataLayer.Repositories
         public List<Absence> GetByUserId(string userId)
         {
             var absences = new List<Absence>();
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "SELECT * FROM Absence WHERE userId = @userId ORDER BY created DESC",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@userId", userId);
 
@@ -181,7 +181,7 @@ namespace DataLayer.Repositories
                             });
                         }
                     }
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return absences;
                 }
                 catch (Exception ex)
@@ -190,7 +190,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -198,13 +198,13 @@ namespace DataLayer.Repositories
         public List<Absence> GetAll()
         {
             var absences = new List<Absence>();
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "SELECT a.*, u.name FROM Absence a JOIN User u on u.id=a.userId ORDER BY a.created DESC",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -224,7 +224,7 @@ namespace DataLayer.Repositories
                             });
                         }
                     }
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return absences;
                 }
                 catch (Exception ex)
@@ -233,7 +233,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");

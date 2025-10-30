@@ -6,16 +6,16 @@ namespace DataLayer.Repositories
 {
     public class BusinessTripContext
     {
-        private readonly EapDbContext _eapDbContext;
+        private readonly CompanyAdministrationDbContext _companyAdministrationDbContext;
 
-        public BusinessTripContext(EapDbContext eapDbContext)
+        public BusinessTripContext(CompanyAdministrationDbContext companyAdministrationDbContext)
         {
-            _eapDbContext = eapDbContext ?? throw new ArgumentNullException(nameof(eapDbContext));
+            _companyAdministrationDbContext = companyAdministrationDbContext ?? throw new ArgumentNullException(nameof(companyAdministrationDbContext));
         }
 
         public bool Create(BusinessTrip businessTrip)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
@@ -29,7 +29,7 @@ namespace DataLayer.Repositories
                         "@totalDays, @carOwnerShip, @wage, @accomodationMoney, @carBrand, @carRegistrationNumber, " +
                         "@carTripDestination, @dateOfArrival, @carModel, @additionalExpences, @carUsagePerHundredKm, @pricePerLiter, " +
                         "@departureDate, @expensesResponsibility, @created, @userId)",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@issueId", 0);
                     command.Parameters.AddWithValue("@status", (int)businessTrip.Status);
@@ -59,7 +59,7 @@ namespace DataLayer.Repositories
                     int rowsAffected = command.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
-                        using (var transaction = _eapDbContext.Connection.BeginTransaction())
+                        using (var transaction = _companyAdministrationDbContext.Connection.BeginTransaction())
                         {
                             try
                             {
@@ -80,7 +80,7 @@ namespace DataLayer.Repositories
                                 ) AS ranked ON bt.id = ranked.id
                                 SET bt.issueId = ranked.newIssueId
                                 WHERE bt.id = ranked.id;",
-                                _eapDbContext.Connection, transaction);
+                                _companyAdministrationDbContext.Connection, transaction);
                                 transactionCommand.ExecuteNonQuery();
                                 transaction.Commit();
                             }
@@ -91,7 +91,7 @@ namespace DataLayer.Repositories
                             }
                         }
                     }
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
@@ -100,7 +100,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -108,7 +108,7 @@ namespace DataLayer.Repositories
 
         public bool Update(BusinessTrip businessTrip)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
@@ -120,7 +120,7 @@ namespace DataLayer.Repositories
                         "dateOfArrival = @dateOfArrival, carModel = @carModel, additionalExpences = @additionalExpences, carUsagePerHundredKm = @carUsagePerHundredKm, " +
                         "pricePerLiter = @pricePerLiter, departureDate = @departureDate, expensesResponsibility = @expensesResponsibility " +
                         "WHERE id = @id",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@status", (int)businessTrip.Status);
                     command.Parameters.AddWithValue("@projectName", businessTrip.ProjectName);
@@ -145,7 +145,7 @@ namespace DataLayer.Repositories
                     command.Parameters.AddWithValue("@id", businessTrip.Id);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
@@ -154,7 +154,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -162,18 +162,18 @@ namespace DataLayer.Repositories
 
         public bool Delete(int businessTripId)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "DELETE FROM BusinessTrip WHERE id = @id",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@id", businessTripId);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
@@ -182,7 +182,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -190,13 +190,13 @@ namespace DataLayer.Repositories
 
         public BusinessTrip GetById(int businessTripId)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "SELECT * FROM BusinessTrip WHERE id = @id",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@id", businessTripId);
 
@@ -241,7 +241,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -250,13 +250,13 @@ namespace DataLayer.Repositories
         public List<BusinessTrip> GetByUserId(string userId)
         {
             var businessTrips = new List<BusinessTrip>();
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "SELECT * FROM BusinessTrip WHERE userId = @userId ORDER BY created DESC",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@userId", userId);
 
@@ -294,7 +294,7 @@ namespace DataLayer.Repositories
                             });
                         }
                     }
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return businessTrips;
                 }
                 catch (Exception ex)
@@ -303,7 +303,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -312,13 +312,13 @@ namespace DataLayer.Repositories
         public List<BusinessTrip> GetAll()
         {
             var businessTrips = new List<BusinessTrip>();
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "SELECT * FROM BusinessTrip ORDER BY created DESC",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -354,7 +354,7 @@ namespace DataLayer.Repositories
                             });
                         }
                     }
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return businessTrips;
                 }
                 catch (Exception ex)
@@ -363,7 +363,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");

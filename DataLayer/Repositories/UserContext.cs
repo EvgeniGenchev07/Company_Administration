@@ -7,20 +7,20 @@ namespace DataLayer.Repositories
 {
     public class UserContext
     {
-        private readonly EapDbContext _eapDbContext;
-        public UserContext(EapDbContext eapDbContext)
+        private readonly CompanyAdministrationDbContext _companyAdministrationDbContext;
+        public UserContext(CompanyAdministrationDbContext companyAdministrationDbContext)
         {
-            _eapDbContext = eapDbContext ?? throw new ArgumentNullException(nameof(eapDbContext));
+            _companyAdministrationDbContext = companyAdministrationDbContext ?? throw new ArgumentNullException(nameof(companyAdministrationDbContext));
         }
         public List<User> GetAll()
         {
             var users = new List<User>();
 
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
-                    MySqlConnector.MySqlCommand command = new MySqlConnector.MySqlCommand("SELECT * FROM User", _eapDbContext.Connection);
+                    MySqlConnector.MySqlCommand command = new MySqlConnector.MySqlCommand("SELECT * FROM User", _companyAdministrationDbContext.Connection);
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -37,7 +37,7 @@ namespace DataLayer.Repositories
                             });
                         }
                     }
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return users;
                 }
                 catch (Exception ex)
@@ -46,7 +46,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -54,16 +54,16 @@ namespace DataLayer.Repositories
 
         public async Task UpdateAbsenceBalancesAsync()
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
-                using (var transaction = _eapDbContext.Connection.BeginTransaction())
+                using (var transaction = _companyAdministrationDbContext.Connection.BeginTransaction())
                 {
                     try
                     {
                         var transactionCommand = new MySqlCommand(@"
                                 UPDATE user
                                 SET AbsenceDays = LEAST(AbsenceDays + ContractDays, 40);",
-                                _eapDbContext.Connection, transaction);
+                                _companyAdministrationDbContext.Connection, transaction);
                         transactionCommand.ExecuteNonQuery();
                         transaction.Commit();
                     }
@@ -74,7 +74,7 @@ namespace DataLayer.Repositories
                     }
                     finally
                     {
-                        _eapDbContext.Close();
+                        _companyAdministrationDbContext.Close();
                     }
                 }
             }
@@ -82,7 +82,7 @@ namespace DataLayer.Repositories
 
         public bool Create(User user)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
@@ -94,7 +94,7 @@ namespace DataLayer.Repositories
                     var command = new MySqlConnector.MySqlCommand(
                         "INSERT INTO User (Id, Name, Email, Password, Role, ContractDays, AbsenceDays) " +
                         "VALUES (@id, @name, @email, @password, @role, @contractDays, @absenceDays)",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@id", user.Id);
                     command.Parameters.AddWithValue("@name", user.Name);
@@ -105,7 +105,7 @@ namespace DataLayer.Repositories
                     command.Parameters.AddWithValue("@absenceDays", user.AbsenceDays);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
@@ -114,7 +114,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -122,14 +122,14 @@ namespace DataLayer.Repositories
 
         public bool Update(User user)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "UPDATE User SET Name = @name, Email = @email, Password = @password, Role = @role, " +
                         "ContractDays = @contractDays, AbsenceDays = @absenceDays WHERE Id = @id",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@name", user.Name);
                     command.Parameters.AddWithValue("@email", user.Email);
@@ -140,7 +140,7 @@ namespace DataLayer.Repositories
                     command.Parameters.AddWithValue("@id", user.Id);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
@@ -149,7 +149,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -157,18 +157,18 @@ namespace DataLayer.Repositories
 
         public bool Delete(string userId)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "DELETE FROM User WHERE Id = @id",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@id", userId);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
                 catch (Exception ex)
@@ -177,7 +177,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -185,13 +185,13 @@ namespace DataLayer.Repositories
 
         public User GetById(string userId)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
                     var command = new MySqlConnector.MySqlCommand(
                         "SELECT * FROM User WHERE Id = @id",
-                        _eapDbContext.Connection);
+                        _companyAdministrationDbContext.Connection);
 
                     command.Parameters.AddWithValue("@id", userId);
 
@@ -217,7 +217,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
@@ -225,7 +225,7 @@ namespace DataLayer.Repositories
 
         public User GetByEmail(string email)
         {
-            if (_eapDbContext.IsConnect())
+            if (_companyAdministrationDbContext.IsConnect())
             {
                 try
                 {
@@ -250,7 +250,7 @@ namespace DataLayer.Repositories
                         WHERE 
                             u.email = @email";
 
-                    var command = new MySqlConnector.MySqlCommand(query, _eapDbContext.Connection);
+                    var command = new MySqlConnector.MySqlCommand(query, _companyAdministrationDbContext.Connection);
                     command.Parameters.AddWithValue("@email", email);
 
                     User user = null;
@@ -344,7 +344,7 @@ namespace DataLayer.Repositories
                 }
                 finally
                 {
-                    _eapDbContext.Close();
+                    _companyAdministrationDbContext.Close();
                 }
             }
             throw new Exception("Database connection is not established.");
