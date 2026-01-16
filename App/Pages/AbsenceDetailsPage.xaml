@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pageModels="clr-namespace:App.PageModels"
+             x:Class="App.Pages.AbsenceDetailsPage"
+             x:DataType="pageModels:AbsenceDetailsPageModel">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header with Back Button -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,10" BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}">
+            <Button Grid.Column="0" 
+                    Text="← Назад" 
+                    Command="{Binding BackCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    FontSize="16"
+                    HorizontalOptions="Start"/>
+
+            <Label Grid.Column="1" 
+                   Text="Детайли за отсъствие" 
+                   FontSize="18" 
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Grid>
+
+        <ScrollView Grid.Row="1"
+                         VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Padding="20" Spacing="20">
+
+                <!-- Status Card -->
+                <Border Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                        StrokeThickness="1"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                        Padding="20">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Статус" FontSize="18" FontAttributes="Bold"/>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Frame Grid.Column="0" 
+                                   BackgroundColor="{Binding StatusColor}" 
+                                   WidthRequest="60" 
+                                   HeightRequest="60" 
+                                   CornerRadius="30"
+                                   HorizontalOptions="Center"
+                                   Padding="0"
+                                   VerticalOptions="Center">
+                                <Label Text="{Binding StatusIcon}" 
+                                       FontSize="22"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                            </Frame>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="5">
+                                <Label Text="{Binding StatusText}" 
+                                       FontSize="20" 
+                                       FontAttributes="Bold"
+                                       TextColor="{Binding StatusColor}"/>
+                                <Label Text="{Binding StatusDescription}" 
+                                       FontSize="14"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Absence Information -->
+                <Border Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                        StrokeThickness="1"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                        Padding="20">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Информация за отсъствието" FontSize="18" FontAttributes="Bold"/>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="10">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Тип:" FontSize="14" FontAttributes="Bold"/>
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding TypeText}" FontSize="14"/>
+
+                            <Label Grid.Row="1" Grid.Column="0" Text="Продължителност:" FontSize="14" FontAttributes="Bold"/>
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding DurationText}" FontSize="14"/>
+
+                            <Label Grid.Row="2" Grid.Column="0" Text="Начална дата:" FontSize="14" FontAttributes="Bold"/>
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding StartDateText}" FontSize="14"/>
+
+                            <Label Grid.Row="3" Grid.Column="0" Text="Крайна дата:" FontSize="14" FontAttributes="Bold"/>
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding EndDateText}" FontSize="14"/>
+
+                            <Label Grid.Row="4" Grid.Column="0" Text="Подадена:" FontSize="14" FontAttributes="Bold"/>
+                            <Label Grid.Row="4" Grid.Column="1" Text="{Binding CreatedText}" FontSize="14"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Actions -->
+                <VerticalStackLayout Spacing="10" IsVisible="{Binding CanEdit}">
+                    <Label Text="Действия" FontSize="18" FontAttributes="Bold"/>
+
+                    <Button Text="Редактирай заявка" 
+                            Command="{Binding EditCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"
+                            FontSize="16"
+                            HeightRequest="50"/>
+
+                    <Button Text="Отмени заявка" 
+                            Command="{Binding CancelCommand}"
+                            BackgroundColor="{StaticResource Error}"
+                            TextColor="White"
+                            FontSize="16"
+                            HeightRequest="50"/>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.Row="1" 
+                          IsRunning="{Binding IsBusy}" 
+                          IsVisible="{Binding IsBusy}"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"/>
+    </Grid>
+</ContentPage>

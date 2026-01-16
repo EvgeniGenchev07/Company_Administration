@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pageModels="clr-namespace:App.PageModels"
+             xmlns:viewModels="clr-namespace:App.ViewModels"
+             x:Class="App.Pages.AllAbsencesPage"
+             x:DataType="pageModels:AllAbsencesPageModel">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- Added an extra row for the filter controls -->
+        <!-- Header with Back Button -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,10" BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}">
+            <Button Grid.Column="0" 
+                    Text="← Назад" 
+                    Command="{Binding BackCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    FontSize="16"
+                    HorizontalOptions="Start"/>
+
+            <Label Grid.Column="1" 
+                   Text="Всички отсъствия" 
+                   FontSize="18" 
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Grid>
+
+        <!-- Filter Controls -->
+        <StackLayout Grid.Row="1" 
+                     Orientation="Horizontal" 
+                     Spacing="10"
+                     Padding="20,10"
+                     VerticalOptions="Center">
+            <Label Text="Избери година:" VerticalOptions="Center" HorizontalOptions="Start"/>
+            <Picker x:Name="YearPicker" 
+                    VerticalOptions="Center" 
+                    WidthRequest="120"
+                    ItemsSource="{Binding AvailableYears}"
+                    SelectedItem="{Binding SelectedYear}"/>
+            <Label Text="Избери месец:" VerticalOptions="Center" HorizontalOptions="Start"/>
+            <Picker x:Name="MonthPicker" 
+                    VerticalOptions="Center" 
+                    WidthRequest="150"
+                    ItemsSource="{Binding AvailableMonths}"
+                    SelectedItem="{Binding SelectedMonth}"/>
+            <Label Text="Търси по тип:" VerticalOptions="Center" HorizontalOptions="Start"/>
+            <Entry Text="{Binding Search}"  
+                   VerticalOptions="Center" 
+                   WidthRequest="200"/>
+
+            <Label Text="Общо отпуски:" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Label Text="{Binding TotalAbsences}" 
+                   TextColor="{StaticResource Primary}" 
+                   FontSize="Body" 
+                   HorizontalOptions="End" 
+                   VerticalOptions="Center"/>
+        </StackLayout>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Row="2" RowDefinitions="Auto,*">
+            <!-- Summary Stats -->
+            <Border Grid.Row="0" 
+                    Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                    StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray50}, Dark={StaticResource Gray800}}"
+                    Padding="20"
+                    Margin="20,10,20,10">
+                <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto">
+                    <Label Grid.Row="0" Grid.Column="0" Text="Общо" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    <Label Grid.Row="0" Grid.Column="1" Text="Чакащи" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    <Label Grid.Row="0" Grid.Column="2" Text="Одобрени" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    <Label Grid.Row="0" Grid.Column="3" Text="Отхвърлени" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" Text="{Binding TotalAbsences}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Primary}"/>
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding PendingAbsences}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Warning}"/>
+                    <Label Grid.Row="1" Grid.Column="2" Text="{Binding ApprovedAbsences}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Success}"/>
+                    <Label Grid.Row="1" Grid.Column="3" Text="{Binding RejectedAbsences}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Error}"/>
+                </Grid>
+            </Border>
+
+            <!-- Absences List -->
+            <RefreshView Grid.Row="1" 
+                         IsRefreshing="{Binding IsRefreshing}"
+                         Command="{Binding RefreshCommand}">
+                <CollectionView ItemsSource="{Binding AllAbsences}" 
+                               VerticalScrollBarVisibility="Never">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="viewModels:AbsenceViewModel">
+                            <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray700}}"
+                                    StrokeThickness="1"
+                                    Margin="20,5"
+                                    Padding="15"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type pageModels:AllAbsencesPageModel}}, Path=SelectAbsenceCommand}" 
+CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
+                                    <!-- Header with Type and Status -->
+                                    <Label Grid.Row="0" Grid.Column="0" 
+                                           Text="{Binding TypeText}" 
+                                           FontAttributes="Bold"
+                                           FontSize="16"/>
+                                    <Label Grid.Row="0" Grid.Column="1" 
+                                           Text="{Binding StatusText}" 
+                                           TextColor="{Binding StatusColor}"
+                                           FontAttributes="Bold"/>
+
+                                    <!-- Date Range -->
+                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="{Binding DateRange}" 
+                                           FontSize="14"
+                                           Margin="0,5,0,0"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+
+                                    <!-- Duration -->
+                                    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="{Binding DurationText}" 
+                                           FontSize="12"
+                                           Margin="0,2,0,0"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"/>
+
+                                    <!-- Created Date -->
+                                    <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="{Binding CreatedText}" 
+                                           FontSize="12"
+                                           Margin="0,2,0,0"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
+                            <Label Text="Няма намерени отсъствия" 
+                                   FontSize="18" 
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"/>
+                            <Label Text="Все още не сте подавали заявки за отсъствие." 
+                                   FontSize="14" 
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+            </RefreshView>
+        </Grid>
+
+        <!-- Loading Indicator - spans all rows -->
+        <ActivityIndicator Grid.RowSpan="3" 
+                          IsRunning="{Binding IsBusy}" 
+                          IsVisible="{Binding IsBusy}"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"/>
+    </Grid>
+</ContentPage>

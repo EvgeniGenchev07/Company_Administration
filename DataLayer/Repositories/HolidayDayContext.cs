@@ -1,20 +1,17 @@
 ﻿using BusinessLayer.Entities;
 using BusinessLayer.Enums;
+using DataLayer.Interfaces.Repository;
 using DataLayer.Persistence;
 using MySqlConnector;
 
 namespace DataLayer.Repositories
 {
-    public class HolidayDayContext
+    public class HolidayDayContext(CompanyAdministrationDbContext companyAdministrationDbContext)
+        : IHolidayDayContext
     {
-        private readonly CompanyAdministrationDbContext _companyAdministrationDbContext;
+        private readonly CompanyAdministrationDbContext _companyAdministrationDbContext = companyAdministrationDbContext ?? throw new ArgumentNullException(nameof(companyAdministrationDbContext));
 
-        public HolidayDayContext(CompanyAdministrationDbContext companyAdministrationDbContext)
-        {
-            _companyAdministrationDbContext = companyAdministrationDbContext ?? throw new ArgumentNullException(nameof(companyAdministrationDbContext));
-        }
-
-        public bool Create(HolidayDay holiday)
+        public async Task<bool> Create(HolidayDay holiday)
         {
             if (_companyAdministrationDbContext.IsConnect())
             {
@@ -29,7 +26,7 @@ namespace DataLayer.Repositories
                     command.Parameters.AddWithValue("@date", holiday.Date);
                     command.Parameters.AddWithValue("@isCustom", holiday.IsCustom);
 
-                    int rowsAffected = command.ExecuteNonQuery();
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
                     _companyAdministrationDbContext.Close();
                     return rowsAffected > 0;
                 }
@@ -41,8 +38,8 @@ namespace DataLayer.Repositories
             }
             throw new Exception("Database connection is not established.");
         }
-        
-        public HolidayDay? GetById(int id)
+
+        public async Task<HolidayDay> GetById(int id)
         {
             if (_companyAdministrationDbContext.IsConnect())
             {
@@ -51,9 +48,9 @@ namespace DataLayer.Repositories
                     var command = new MySqlCommand("SELECT * FROM HolidayDay WHERE id = @id", _companyAdministrationDbContext.Connection);
                     command.Parameters.AddWithValue("@id", id);
 
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             var holiday = new HolidayDay
                             {
@@ -79,57 +76,7 @@ namespace DataLayer.Repositories
             throw new Exception("Database connection is not established.");
         }
 
-        public bool Update(HolidayDay holiday)
-        {
-            if (_companyAdministrationDbContext.IsConnect())
-            {
-                try
-                {
-                    var command = new MySqlCommand(
-                        "UPDATE HolidayDay SET name = @name, date = @date, isCustom = @isCustom WHERE id = @id",
-                        _companyAdministrationDbContext.Connection);
-
-                    command.Parameters.AddWithValue("@id", holiday.Id);
-                    command.Parameters.AddWithValue("@name", holiday.Name);
-                    command.Parameters.AddWithValue("@date", holiday.Date);
-                    command.Parameters.AddWithValue("@isCustom", holiday.IsCustom);
-
-                    int rowsAffected = command.ExecuteNonQuery();
-                    _companyAdministrationDbContext.Close();
-                    return rowsAffected > 0;
-                }
-                catch (Exception ex)
-                {
-                    _companyAdministrationDbContext.Close();
-                    throw new Exception("Error updating holiday in the database.", ex);
-                }
-            }
-            throw new Exception("Database connection is not established.");
-        }
-
-        public bool Delete(int id)
-        {
-            if (_companyAdministrationDbContext.IsConnect())
-            {
-                try
-                {
-                    var command = new MySqlCommand("DELETE FROM HolidayDay WHERE id = @id", _companyAdministrationDbContext.Connection);
-                    command.Parameters.AddWithValue("@id", id);
-
-                    int rowsAffected = command.ExecuteNonQuery();
-                    _companyAdministrationDbContext.Close();
-                    return rowsAffected > 0;
-                }
-                catch (Exception ex)
-                {
-                    _companyAdministrationDbContext.Close();
-                    throw new Exception("Error deleting holiday from the database.", ex);
-                }
-            }
-            throw new Exception("Database connection is not established.");
-        }
-
-        public List<HolidayDay> GetAll()
+        public async Task<List<HolidayDay>> GetAll()
         {
             var holidays = new List<HolidayDay>();
             if (_companyAdministrationDbContext.IsConnect())
@@ -140,9 +87,9 @@ namespace DataLayer.Repositories
                         "SELECT * FROM HolidayDay ORDER BY date DESC",
                         _companyAdministrationDbContext.Connection);
 
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             holidays.Add(new HolidayDay
                             {
@@ -164,14 +111,65 @@ namespace DataLayer.Repositories
                 }
                 int year = DateTime.Now.Year;
 
-                holidays.AddRange(InitializeOfficialHolidays(year - 1).Result);
-                holidays.AddRange(InitializeOfficialHolidays(year).Result);
-                holidays.AddRange(InitializeOfficialHolidays(year + 1).Result);
+                holidays.AddRange(await InitializeOfficialHolidays(year - 1));
+                holidays.AddRange(await InitializeOfficialHolidays(year));
+                holidays.AddRange(await InitializeOfficialHolidays(year + 1));
                 return holidays;
             }
             throw new Exception("Database connection is not established.");
         }
-        private DateTime CalculateOrthodoxEaster(int year)
+
+        public async Task<bool> Update(HolidayDay holiday)
+        {
+            if (_companyAdministrationDbContext.IsConnect())
+            {
+                try
+                {
+                    var command = new MySqlCommand(
+                        "UPDATE HolidayDay SET name = @name, date = @date, isCustom = @isCustom WHERE id = @id",
+                        _companyAdministrationDbContext.Connection);
+
+                    command.Parameters.AddWithValue("@id", holiday.Id);
+                    command.Parameters.AddWithValue("@name", holiday.Name);
+                    command.Parameters.AddWithValue("@date", holiday.Date);
+                    command.Parameters.AddWithValue("@isCustom", holiday.IsCustom);
+
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    _companyAdministrationDbContext.Close();
+                    return rowsAffected > 0;
+                }
+                catch (Exception ex)
+                {
+                    _companyAdministrationDbContext.Close();
+                    throw new Exception("Error updating holiday in the database.", ex);
+                }
+            }
+            throw new Exception("Database connection is not established.");
+        }
+
+        public async Task<bool> Delete(int id)
+        {
+            if (_companyAdministrationDbContext.IsConnect())
+            {
+                try
+                {
+                    var command = new MySqlCommand("DELETE FROM HolidayDay WHERE id = @id", _companyAdministrationDbContext.Connection);
+                    command.Parameters.AddWithValue("@id", id);
+
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    _companyAdministrationDbContext.Close();
+                    return rowsAffected > 0;
+                }
+                catch (Exception ex)
+                {
+                    _companyAdministrationDbContext.Close();
+                    throw new Exception("Error deleting holiday from the database.", ex);
+                }
+            }
+            throw new Exception("Database connection is not established.");
+        }
+
+        private static async Task<DateTime> CalculateOrthodoxEaster(int year)
         {
             int a = year % 4;
             int b = year % 7;
@@ -184,7 +182,8 @@ namespace DataLayer.Repositories
             DateTime easter = new DateTime(year, month, day);
             return easter.AddDays(13);
         }
-        private async Task<List<HolidayDay>> InitializeOfficialHolidays(int year)
+        
+        private static async Task<List<HolidayDay>> InitializeOfficialHolidays(int year)
         {
             var holidays = new List<HolidayDay>();
             var fixedHolidays = new List<HolidayDay>
@@ -201,7 +200,7 @@ namespace DataLayer.Repositories
             new HolidayDay(){Date= new DateTime(year, 12, 26), Name = "Коледа" }
         };
 
-            var easter = CalculateOrthodoxEaster(year);
+            var easter = await CalculateOrthodoxEaster(year);
             var easterHolidays = new List<HolidayDay>
         {
            new HolidayDay(){Date = easter.AddDays(-2),Name="Разпети петък" },

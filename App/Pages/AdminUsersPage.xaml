@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pageModels="clr-namespace:App.PageModels"
+             xmlns:viewModels="clr-namespace:App.ViewModels"
+             x:Class="App.Pages.AdminUsersPage"
+             NavigationPage.HasBackButton="False"
+             NavigationPage.HasNavigationBar="False"
+             x:DataType="pageModels:AdminUsersPageModel">
+
+    <Grid RowDefinitions="Auto,*" Padding="20">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,10" BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}">
+            <Button Grid.Column="0"
+                    Text="← Назад" 
+                    Command="{Binding CancelCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    FontSize="16"
+                    HorizontalOptions="Start"/>
+
+            <Label Grid.Column="1" 
+                   Text="Управление на потребители" 
+                   FontSize="18" 
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+
+            <Button Grid.Column="2" 
+                    Text="Добави потребител" 
+                    Command="{Binding AddUserCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    FontSize="16"
+                    HorizontalOptions="End"/>
+        </Grid>
+
+        <!-- Content -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,*">
+            <!-- Search Bar -->
+            <Frame Grid.Row="0" Margin="20,10,20,10" Padding="15" BackgroundColor="{AppThemeBinding Light={StaticResource Gray50}, Dark={StaticResource Gray800}}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Entry Grid.Column="0" 
+                           Text="{Binding SearchText}" 
+                           Placeholder="Търсене на потребители..."
+                           FontSize="16"/>
+                    <Button Grid.Column="1" 
+                            Text="Търси" 
+                            Command="{Binding SearchCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"
+                            Margin="10,0,0,0"/>
+                </Grid>
+            </Frame>
+
+            <!-- Users List -->
+            <RefreshView Grid.Row="1" 
+                        IsRefreshing="{Binding IsRefreshing}" 
+                        Command="{Binding RefreshCommand}">
+                <CollectionView ItemsSource="{Binding Users}"
+                         VerticalScrollBarVisibility="Never" 
+                               Margin="20,0,20,20">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="viewModels:UserViewModel">
+                            <Border Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                                    StrokeThickness="1"
+                                    Margin="0,5"
+                                    Padding="15"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                    <!-- User Info -->
+                                    <VerticalStackLayout Grid.Column="0" Grid.Row="0" Spacing="5">
+                                        <Label Text="{Binding Name}" 
+                                               FontAttributes="Bold" 
+                                               FontSize="16"/>
+                                        <Label Text="{Binding Email}" 
+                                               FontSize="14"
+                                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                                        <Label Text="{Binding RoleText}" 
+                                               FontSize="12"
+                                               TextColor="{Binding RoleColor}"/>
+                                    </VerticalStackLayout>
+
+                                    <!-- Actions -->
+                                    <HorizontalStackLayout Grid.Column="1" Grid.Row="0" Spacing="5">
+                                        <Button Text="Редактирай" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type pageModels:AdminUsersPageModel}}, Path=EditUserCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="{StaticResource Primary}"
+                                                TextColor="White"
+                                                FontSize="12"
+                                                HeightRequest="30"/>
+                                        <Button Text="Изтрий" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type pageModels:AdminUsersPageModel}}, Path=DeleteUserCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="{StaticResource Error}"
+                                                TextColor="White"
+                                                FontSize="12"
+                                                HeightRequest="30"/>
+                                    </HorizontalStackLayout>
+
+                                    <!-- Stats -->
+                                    <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" ColumnDefinitions="Auto,*,Auto,*,Auto,*" Margin="0,10,0,0">
+                                        <!-- First pair -->
+                                        <Label Grid.Column="0" Text="Дни отпуска по договор:" FontSize="12" VerticalOptions="Center"/>
+                                        <Label Grid.Column="1" Text="{Binding ContractDays}" FontSize="12" FontAttributes="Bold" VerticalOptions="Center" Margin="0,0,10,0"/>
+
+                                        <!-- Second pair -->
+                                        <Label Grid.Column="2" Text="Оставащи дни:" FontSize="12" VerticalOptions="Center"/>
+                                        <Label Grid.Column="3" Text="{Binding AbsenceDays}" FontSize="12" FontAttributes="Bold" VerticalOptions="Center" Margin="0,0,10,0"/>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+        </Grid>
+
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.Row="1" 
+                          IsRunning="{Binding IsBusy}" 
+                          IsVisible="{Binding IsBusy}"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"/>
+    </Grid>
+</ContentPage>

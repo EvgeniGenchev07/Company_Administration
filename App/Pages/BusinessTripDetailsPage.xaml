@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pageModels="clr-namespace:App.PageModels"
+             xmlns:models="clr-namespace:BusinessLayer;assembly=BusinessLayer"
+             xmlns:converters="clr-namespace:App.Converters"
+             x:Class="App.Pages.BusinessTripDetailsPage"
+             x:DataType="pageModels:BusinessTripDetailsPageModel">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:StatusToTextConverter x:Key="StatusToTextConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header with frame content -->
+        <Frame Grid.Row="0" 
+           BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}"
+           Padding="20"
+           Margin="0"
+           CornerRadius="0">
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
+                <!-- Cancel Button (Left) -->
+                <Button Grid.Row="0" Grid.Column="0"
+                    Text="← Назад" 
+                    Command="{Binding CancelCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    FontSize="16"
+                    HorizontalOptions="Start"
+                    VerticalOptions="Center"/>
+
+                <!-- Project Name (Middle) -->
+                <Label Grid.Row="0" Grid.Column="1"
+                   Text="{Binding BusinessTrip.ProjectName}" 
+                   FontSize="20" 
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+
+                <!-- Status (Right) -->
+                <Label Grid.Row="0" Grid.Column="2"
+                   Text="{Binding BusinessTrip.Status, Converter={StaticResource StatusToTextConverter}}"
+                   FontSize="14"
+                   TextColor="White"
+                   FontAttributes="Bold"
+                   HorizontalOptions="End"
+                   VerticalOptions="Center"/>
+
+            </Grid>
+        </Frame>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Padding="20" Spacing="15">
+
+                <!-- Quick Info Cards - Now with full width utilization -->
+                <Grid ColumnDefinitions="*,10,*" ColumnSpacing="0" Margin="0,0,0,10">
+                    <!-- Start Date Card -->
+                    <Frame Grid.Column="0"
+                        BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#2D2D2D}"
+                        CornerRadius="10" 
+                        Padding="15"
+                        HasShadow="True"
+                        HorizontalOptions="FillAndExpand">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="5">
+                            <Label Text="📅" FontSize="24" HorizontalOptions="Center"/>
+                            <Label Text="{Binding BusinessTrip.StartDate, StringFormat='{0:dd/MM/yyyy}'}" 
+                   FontSize="16" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            <Label Text="Начална дата" FontSize="12" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Destination Card -->
+                    <Frame Grid.Column="2"
+                        BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#2D2D2D}"
+                        CornerRadius="10" 
+                        Padding="15"
+                        HasShadow="True"
+                        HorizontalOptions="FillAndExpand">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="5">
+                            <Label Text="📍" FontSize="24" HorizontalOptions="Center"/>
+                            <Label Text="{Binding BusinessTrip.CarTripDestination}" 
+                                FontSize="16" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            <Label Text="Дестинация" FontSize="12" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- Duration and Cost - Second Row -->
+                <Grid ColumnDefinitions="*,10,*" ColumnSpacing="0">
+                    <!-- Duration Card -->
+                    <Frame Grid.Column="0"
+                        BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#2D2D2D}"
+                        CornerRadius="10" 
+                        Padding="15"
+                        HasShadow="True"
+                        HorizontalOptions="FillAndExpand">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="5">
+                            <Label Text="⏱️" FontSize="24" HorizontalOptions="Center"/>
+                            <Label Text="{Binding BusinessTrip.TotalDays, StringFormat='{0} дни'}" 
+                                FontSize="16" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            <Label Text="Продължителност" FontSize="12" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Cost Card -->
+                    <Frame Grid.Column="2"
+                        BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#2D2D2D}"
+                        CornerRadius="10" 
+                        Padding="15"
+                        HasShadow="True"
+                        HorizontalOptions="FillAndExpand">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="5">
+                            <Label Text="💰" FontSize="24" HorizontalOptions="Center"/>
+                            <Label Text="{Binding TotalExpenses, StringFormat='{0:N0} лв'}" 
+                                FontSize="16" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            <Label Text="Общо разходи" FontSize="12" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- Edit Mode Toggle -->
+                <Frame IsVisible="{Binding CanEdit}"
+                       BackgroundColor="{AppThemeBinding Light=#FFF3CD, Dark=#856404}"
+                       CornerRadius="10"
+                       Padding="15"
+                       BorderColor="{AppThemeBinding Light=#FFEAA7, Dark=#F39C12}">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout>
+                            <Label Text="Редактиране" FontSize="16" FontAttributes="Bold"/>
+                            <Label Text="Натиснете бутона за да редактирате командировката" FontSize="12"/>
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1" 
+                                Text="{Binding EditButtonText}"
+                                Command="{Binding ToggleEditCommand}"
+                                BackgroundColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"
+                                TextColor="White"
+                                CornerRadius="20"
+                                Padding="20,10"/>
+                    </Grid>
+                </Frame>
+
+                <!-- Trip Details -->
+                <Frame BorderColor="LightGray" CornerRadius="10" Padding="20" HasShadow="True">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="📋 Детайли за командировка" FontSize="18" FontAttributes="Bold"/>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="ЗАПОВЕД №:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                Text="{Binding BusinessTrip.IssueId}" 
+                                IsEnabled="False"
+                                TextColor="{Binding IsEditing}"
+                                FontSize="14"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Дата на създаване:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                Text="{Binding BusinessTrip.IssueDate}" 
+                                IsEnabled="False"
+                                   TextColor="{Binding IsEditing}"
+                                   FontSize="14"/>
+                        </Grid>
+
+                        <!-- Project Name -->
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Проект:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding BusinessTrip.ProjectName}" 
+                                   IsEnabled="{Binding IsEditing}"
+                                   TextColor="{Binding IsEditing}"
+                                   FontSize="14"/>
+                        </Grid>
+
+                        <!-- Task -->
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Задача:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding BusinessTrip.Task}" 
+                                   IsEnabled="{Binding IsEditing}"
+                                   TextColor="{Binding IsEditing}"
+                                   FontSize="14"/>
+                        </Grid>
+
+                        <!-- Dates -->
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Начална дата:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <DatePicker Grid.Column="1" 
+                                       Date="{Binding BusinessTrip.StartDate}" 
+                                       IsEnabled="{Binding IsEditing}"
+                                       Format="dd/MM/yyyy"
+                                       TextColor="{Binding IsEditing}"
+                                       FontSize="14"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Крайна дата:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <DatePicker Grid.Column="1" 
+                                       Date="{Binding BusinessTrip.EndDate}" 
+                                       IsEnabled="{Binding IsEditing}"
+                                       Format="dd/MM/yyyy"
+                                       TextColor="{Binding IsEditing}"
+                                       FontSize="14"/>
+                        </Grid>
+
+                        <!-- Destination -->
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Дестинация:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding BusinessTrip.CarTripDestination}" 
+                                   IsEnabled="{Binding IsEditing}"
+                                   TextColor="{Binding IsEditing}"
+                                   FontSize="14"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Отговорност за разходи:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                Text="{Binding BusinessTrip.ExpensesResponsibility}" 
+                                IsEnabled="{Binding IsEditing}"
+                                TextColor="{Binding IsEditing}"
+                                FontSize="14"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Financial Details -->
+                <Frame BorderColor="LightGray" CornerRadius="10" Padding="20" HasShadow="True">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="💰 Финансова информация" FontSize="18" FontAttributes="Bold"/>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Дневни издръжки:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding Wage}" 
+                                   IsEnabled="{Binding IsEditing}"
+                                   Keyboard="Numeric"
+                                   TextColor="{Binding IsEditing}"
+                                   FontSize="14"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Квартирни издръжки:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding AccommodationMoney}" 
+                                   IsEnabled="{Binding IsEditing}"
+                                   Keyboard="Numeric"
+                                   TextColor="{Binding IsEditing}"
+                                   FontSize="14"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Други разходи:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                Text="{Binding AdditionalExpences}" 
+                                IsEnabled="{Binding IsEditing}"
+                                Keyboard="Numeric"
+                                TextColor="{Binding IsEditing}"
+                                FontSize="14"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Общо:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Label Grid.Column="1" 
+                                   Text="{Binding TotalExpenses, StringFormat='{0:N2} лв'}" 
+                                   FontSize="16" FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Vehicle Information -->
+                <Frame BorderColor="LightGray" CornerRadius="10" Padding="20" HasShadow="True">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="🚗 Транспортна информация" FontSize="18" FontAttributes="Bold"/>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Марка:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding BusinessTrip.CarBrand}" 
+                                   IsEnabled="{Binding IsEditing}"
+                                   TextColor="{Binding IsEditing}"
+                                   FontSize="14"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Модел:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding BusinessTrip.CarModel}" 
+                                   IsEnabled="{Binding IsEditing}"
+                                   TextColor="{Binding IsEditing}"
+                                   FontSize="14"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Рег. номер:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding BusinessTrip.CarRegistrationNumber}" 
+                                   IsEnabled="{Binding IsEditing}"
+                                   TextColor="{Binding IsEditing    }"
+                                   FontSize="14"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Собственост:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                Text="{Binding BusinessTrip.CarOwnership}" 
+                                IsEnabled="{Binding IsEditing}"
+                                TextColor="{Binding IsEditing}"
+                                FontSize="14"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Разход:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                Text="{Binding BusinessTrip.CarUsagePerHundredKm}" 
+                                IsEnabled="{Binding IsEditing}"
+                                TextColor="{Binding IsEditing}"
+                                FontSize="14"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                            <Label Text="Цена на гориво за литър:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                Text="{Binding BusinessTrip.PricePerLiter}" 
+                                IsEnabled="{Binding IsEditing}"
+                                TextColor="{Binding IsEditing}"
+                                FontSize="14"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Action Buttons -->
+                <VerticalStackLayout Spacing="10" Margin="0,20,0,0">
+                    
+
+                    <Button Text="Отказ" 
+                            Command="{Binding CancelEditCommand}"
+                            IsVisible="{Binding IsEditing}"
+                            HorizontalOptions="Fill"
+                            BackgroundColor="{AppThemeBinding Light=#DC3545, Dark=#E74C3C}"
+                            TextColor="White"
+                            FontSize="16"
+                            HeightRequest="50"/>
+                    <Button Text="Изтриване" 
+                        Command="{Binding DeleteCommand}"
+                        IsVisible="{Binding IsEditing}"
+                        HorizontalOptions="Fill"
+                        BackgroundColor="{AppThemeBinding Light=#DC3545, Dark=#2ECC71}"
+                        TextColor="White"
+                        FontSize="16"
+                        HeightRequest="50"/>        
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

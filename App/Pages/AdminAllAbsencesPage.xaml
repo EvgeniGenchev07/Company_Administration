@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pageModels="clr-namespace:App.PageModels"
+             xmlns:viewModels="clr-namespace:App.ViewModels"
+             x:Class="App.Pages.AdminAllAbsencesPage"
+             x:DataType="pageModels:AdminAllAbsencesPageModel">
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="20">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,10" BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}">
+            <Button Grid.Column="0"
+                    Text="← Назад" 
+                    Command="{Binding CancelCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    FontSize="16"
+                    HorizontalOptions="Start"/>
+
+            <Label Grid.Column="1" 
+                   Text="Управление на отсъствия" 
+                   FontSize="18" 
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+
+        <Button Grid.Column="2" 
+                    Text="Експортирай" 
+                    Command="{Binding ExportCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    FontSize="16"
+                    HorizontalOptions="End"/>
+        </Grid>
+        <StackLayout Grid.Row="1" Orientation="Horizontal" Spacing="10">
+            <Label Text="Избери година:" VerticalOptions="Center" HorizontalOptions="Start"/>
+            <Picker x:Name="YearPicker" VerticalOptions="Center" WidthRequest="120"
+            ItemsSource="{Binding AvailableYears}"
+            SelectedItem="{Binding SelectedYear}"/>
+            <Label Text="Избери месец:" VerticalOptions="Center" HorizontalOptions="Start"/>
+            <Picker x:Name="MonthPicker" VerticalOptions="Center" WidthRequest="150"
+            ItemsSource="{Binding AvailableMonths}"
+            SelectedItem="{Binding SelectedMonth}"/>
+            <Label Text="Търси по име:" VerticalOptions="Center" HorizontalOptions="Start"/>
+            <Entry Text="{Binding Search}"  VerticalOptions="Center" WidthRequest="200"/>
+
+            <Label Text="Общо отпуски:" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Label Text="{Binding TotalAbsences}" TextColor="{StaticResource Primary}" FontSize="Body" HorizontalOptions="End" VerticalOptions="Center"/>
+        </StackLayout>
+        <!-- Content -->
+        <Grid Grid.Row="2" RowDefinitions="Auto,*">
+            <!-- Stats -->
+            <Frame Grid.Row="0" Margin="20,10,20,10" Padding="15" BackgroundColor="{AppThemeBinding Light={StaticResource Gray50}, Dark={StaticResource Gray800}}">
+                <Grid ColumnDefinitions="*,*,*,*">
+                    <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
+                        <Label Text="Общо" FontSize="12" HorizontalOptions="Center"/>
+                        <Label Text="{Binding TotalAbsences}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
+                        <Label Text="Чакащи" FontSize="12" HorizontalOptions="Center"/>
+                        <Label Text="{Binding PendingAbsences}" FontSize="18" FontAttributes="Bold" TextColor="Orange" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+                        <Label Text="Одобрени" FontSize="12" HorizontalOptions="Center"/>
+                        <Label Text="{Binding ApprovedAbsences}" FontSize="18" FontAttributes="Bold" TextColor="Green" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="3" HorizontalOptions="Center">
+                        <Label Text="Отхвърлени" FontSize="12" HorizontalOptions="Center"/>
+                        <Label Text="{Binding RejectedAbsences}" FontSize="18" FontAttributes="Bold" TextColor="Red" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- Absences List -->
+            <RefreshView Grid.Row="1" 
+                        IsRefreshing="{Binding IsRefreshing}" 
+                        Command="{Binding RefreshCommand}">
+                <CollectionView ItemsSource="{Binding Absences}"
+                         VerticalScrollBarVisibility="Never"
+                                
+                               Margin="20,0,20,20">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="viewModels:AbsenceViewModel">
+                            <Border Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                                    StrokeThickness="1"
+                                    Margin="0,5"
+                                    Padding="15"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type pageModels:AdminAllAbsencesPageModel}}, Path=SelectAbsenceCommand}" 
+CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                    <!-- Absence Info -->
+                                    <VerticalStackLayout Grid.Column="0" Grid.Row="0" Spacing="5">
+                                        <Label Text="{Binding UserName}" 
+                                               FontAttributes="Bold" 
+                                               FontSize="16"/>
+                                        <Label Text="{Binding DateRange}" 
+                                               FontSize="14"
+                                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                                        <Label Text="{Binding TypeText}" 
+                                               FontSize="12"
+                                               TextColor="{Binding TypeColor}"/>
+                                    </VerticalStackLayout>
+
+                                    <!-- Status -->
+                                    <VerticalStackLayout Grid.Column="1" Grid.Row="0" Spacing="5">
+                                        <Label Text="{Binding StatusText}" 
+                                               FontSize="12"
+                                               TextColor="{Binding StatusColor}"
+                                               FontAttributes="Bold"/>
+
+                                        <!-- Status Actions -->
+                                        <HorizontalStackLayout Spacing="5" IsVisible="{Binding CanChangeStatus}">
+                                            <Button Text="✓" 
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type pageModels:AdminAllAbsencesPageModel}}, Path=ApproveAbsenceCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="Green"
+                                                    TextColor="White"
+                                                    FontSize="12"
+                                                    WidthRequest="30"
+                                                    HeightRequest="30"/>
+                                            <Button Text="✗" 
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type pageModels:AdminAllAbsencesPageModel}}, Path=RejectAbsenceCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="Red"
+                                                    TextColor="White"
+                                                    FontSize="12"
+                                                    WidthRequest="30"
+                                                    HeightRequest="30"/>
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+
+                                    <!-- Details -->
+                                    <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" ColumnDefinitions="Auto,*,Auto,*" Margin="0,10,0,0">
+                                        <Label Grid.Column="0" Text="Дни: " FontSize="12" VerticalOptions="Center"/>
+                                        <Label Grid.Column="1" Text="{Binding Days}" FontSize="12" FontAttributes="Bold" VerticalOptions="Center"/>
+                                        <Label Grid.Column="2" Text="Създадена:" Margin="0,2" FontSize="12" VerticalOptions="Center"/>
+                                        <Label Grid.Column="3" Text="{Binding CreatedDate}" FontSize="12" FontAttributes="Bold" VerticalOptions="Center"/>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+        </Grid>
+        <ActivityIndicator Grid.Row="1" 
+                   IsRunning="{Binding IsBusy}" 
+                   IsVisible="{Binding IsBusy}"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+
+        <!-- Empty state -->
+        <Label Grid.Row="2" Text="Няма намерени отсъствия" IsVisible="{Binding HasNoResults}"
+       HorizontalOptions="Center" VerticalOptions="Center" FontAttributes="Italic"/>
+        <!-- Loading Indicator -->
+       
+        
+    </Grid>
+</ContentPage>

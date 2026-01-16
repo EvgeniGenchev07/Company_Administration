@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pageModels="clr-namespace:App.PageModels"
+             xmlns:models="clr-namespace:BusinessLayer;assembly=BusinessLayer"
+             xmlns:converters="clr-namespace:App.Converters" 
+    x:Class="App.Pages.BusinessTripsPage"
+             x:DataType="pageModels:BusinessTripsPageModel">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:StatusToTextConverter x:Key="StatusToTextConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Header with Back Button and User Info -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,10" BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}">
+            <Button Grid.Column="0" 
+                    Text="← Назад" 
+                    Command="{Binding BackCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    FontSize="16"
+                    HorizontalOptions="Start"/>
+
+            <Label Grid.Column="1" 
+                   Text="Моите командировки" 
+                   FontSize="18" 
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Grid>
+
+        <!-- Filters Section -->
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Padding="15" Spacing="10">
+
+                <!-- Search Bar -->
+                <Frame BorderColor="LightGray" CornerRadius="8" Padding="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Entry Grid.Column="0"
+                               Text="{Binding SearchText}" 
+                               Placeholder="Търсене по проект, задача, дестинация..."
+                               FontSize="14"/>
+                        <Button Grid.Column="1" 
+                                Text="🔍" 
+                                Command="{Binding RefreshDataCommand}"
+                                WidthRequest="50"
+                                BackgroundColor="Transparent"
+                                TextColor="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"/>
+                    </Grid>
+                </Frame>
+
+                <!-- Date Range Filters -->
+                <Frame BorderColor="LightGray" CornerRadius="8" Padding="10">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Филтър по дата" FontSize="14" FontAttributes="Bold"/>
+                        <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="10">
+                            <Label Text="От:" FontSize="14" VerticalOptions="Center"/>
+                            <DatePicker Grid.Column="1" 
+                                       Date="{Binding StartDateFilter}" 
+                                       Format="dd/MM/yyyy"
+                                       FontSize="14"/>
+                            <Label Grid.Column="2" Text="До:" FontSize="14" VerticalOptions="Center"/>
+                            <DatePicker Grid.Column="3" 
+                                       Date="{Binding EndDateFilter}" 
+                                       Format="dd/MM/yyyy"
+                                       FontSize="14"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Project and Destination Filters -->
+                <Frame BorderColor="LightGray" CornerRadius="8" Padding="10">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Филтри" FontSize="14" FontAttributes="Bold"/>
+                        <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="10">
+                            <Label Text="Проект:" FontSize="14" VerticalOptions="Center"/>
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding ProjectFilter}" 
+                                   Placeholder="Име на проект"
+                                   FontSize="14"/>
+                            <Label Grid.Column="2" Text="Дестинация:" FontSize="14" VerticalOptions="Center"/>
+                            <Entry Grid.Column="3" 
+                                   Text="{Binding DestinationFilter}" 
+                                   Placeholder="Град"
+                                   FontSize="14"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Status Filter -->
+                <Frame BorderColor="LightGray" CornerRadius="8" Padding="10">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Статус" FontSize="14" FontAttributes="Bold"/>
+                        <Picker ItemsSource="{Binding StatusOptions}"
+                                SelectedItem="{Binding SelectedStatusOption}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                FontSize="14"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Clear Filters Button -->
+                <Button Text="Изчисти филтрите" 
+                        Command="{Binding ClearFiltersCommand}"
+                        HorizontalOptions="Fill"
+                        BackgroundColor="{AppThemeBinding Light=#FF6B6B, Dark=#FF5252}"
+                        TextColor="White"
+                        FontSize="14"
+                        HeightRequest="40"/>
+
+                <!-- Results Count -->
+                <Label Text="{Binding FilteredBusinessTrips.Count, StringFormat='Намерени командировки: {0}'}" 
+                       FontSize="14" 
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+
+                <!-- Business Trips List -->
+                <CollectionView ItemsSource="{Binding FilteredBusinessTrips}"
+                                VerticalScrollBarVisibility="Never">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:BusinessTrip">
+                            <Frame Margin="0,5" 
+                                   BorderColor="LightGray" 
+                                   CornerRadius="8" 
+                                   Padding="15"
+                                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+                                   HasShadow="True">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type pageModels:BusinessTripsPageModel}}, Path=ItemTappedCommand}" 
+                                                         CommandParameter="{Binding .}"/>
+                                </Frame.GestureRecognizers>
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="5">
+
+                                    <!-- Project and Status -->
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding ProjectName}" 
+                                           FontSize="16" 
+                                           FontAttributes="Bold"/>
+                                    <Label Grid.Row="0" Grid.Column="1"
+                                           Text="{Binding Status,Converter={StaticResource StatusToTextConverter}}"
+                                           FontSize="12"
+                                           TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="End"/>
+
+                                    <!-- Task -->
+                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="{Binding Task}" 
+                                           FontSize="14"
+                                           TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}"/>
+
+                                    <!-- Dates and Duration -->
+                                    <StackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
+                                               Orientation="Horizontal" Spacing="15">
+                                        <Label Text="{Binding StartDate, StringFormat='От: {0:dd/MM/yyyy}'}" 
+                                               FontSize="12"/>
+                                        <Label Text="{Binding EndDate, StringFormat='До: {0:dd/MM/yyyy}'}" 
+                                               FontSize="12"/>
+                                        <Label Text="{Binding TotalDays, StringFormat='({0} дни)'}" 
+                                               FontSize="12"
+                                               FontAttributes="Bold"/>
+                                    </StackLayout>
+
+                                    <!-- Destination and Vehicle -->
+                                    <StackLayout Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
+                                               Orientation="Horizontal" Spacing="15">
+                                        <Label Text="{Binding CarTripDestination, StringFormat='📍 {0}'}" 
+                                               FontSize="12"/>
+                                        <Label Text="{Binding CarBrand, StringFormat='🚗 {0}'}" 
+                                               FontSize="12"
+                                               IsVisible="{Binding CarBrand, Converter={StaticResource StringToBoolConverter}}"/>
+                                        <Label Text="{Binding CarModel, StringFormat='{0}'}" 
+                                               FontSize="12"
+                                               IsVisible="{Binding CarModel, Converter={StaticResource StringToBoolConverter}}"/>
+                                    </StackLayout>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- No Results Message -->
+                <VerticalStackLayout IsVisible="{Binding HasResults, Converter={StaticResource InvertedBoolConverter}}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   Spacing="10">
+                    <Label Text="📋" 
+                           FontSize="48" 
+                           HorizontalOptions="Center"/>
+                    <Label Text="Няма намерени командировки" 
+                           FontSize="16" 
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}"/>
+                    <Label Text="Опитайте да промените филтрите" 
+                           FontSize="14" 
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#999999, Dark=#888888}"/>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.Row="2" 
+                          IsRunning="{Binding IsLoading}" 
+                          IsVisible="{Binding IsLoading}"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"
+                          Color="{AppThemeBinding Light=#007AFF, Dark=#0A84FF}"/>
+
+    </Grid>
+</ContentPage>

@@ -2,14 +2,9 @@
 
 namespace DataLayer.Persistence
 {
-    public class CompanyAdministrationDbContext
+    public class CompanyAdministrationDbContext(MySqlConnection connection)
     {
-        private readonly MySqlConnection _connection;
-        public MySqlConnection Connection => _connection;
-        public CompanyAdministrationDbContext(MySqlConnection connection)
-        {
-            _connection = connection;
-        }
+        public MySqlConnection Connection => connection;
 
         public bool IsConnect()
         {
@@ -17,7 +12,7 @@ namespace DataLayer.Persistence
             {
                 return false;
             }
-            _connection.Open();
+            connection.Open();
             return true;
         }
 

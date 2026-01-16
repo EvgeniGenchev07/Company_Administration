@@ -1,0 +1,40 @@
+﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:App"
+             x:Class="App.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Value Converters -->
+            <converters:StatusToTextConverter x:Key="StatusToTextConverter" />
+            <converters:StatusToColorConverter x:Key="StatusToColorConverter" />
+            <converters:IntToBoolConverter x:Key="IntToBoolConverter" />
+            <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:BoolToEditTextConverter x:Key="BoolToEditTextConverter" />
+            <converters:EnabledToTextColorConverter x:Key="EnabledToTextColorConverter" />
+
+            
+            <!-- Styles -->
+            <Style x:Key="BrightDisabledEntry" TargetType="Entry">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Opacity" Value="1" />
+            </Style>
+
+            <Style x:Key="BrightDisabledDatePicker" TargetType="DatePicker">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Opacity" Value="1" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

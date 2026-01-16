@@ -3,19 +3,16 @@ using DataLayer.Persistence;
 using MySqlConnector;
 using System;
 using System.Collections.Generic;
+using DataLayer.Interfaces.Repository;
 
 namespace DataLayer.Repositories
 {
-    public class ProjectContext
+    public class ProjectContext(CompanyAdministrationDbContext companyAdministrationDbContext)
+        : IProjectContext
     {
-        private readonly CompanyAdministrationDbContext _companyAdministrationDbContext;
+        private readonly CompanyAdministrationDbContext _companyAdministrationDbContext = companyAdministrationDbContext ?? throw new ArgumentNullException(nameof(companyAdministrationDbContext));
 
-        public ProjectContext(CompanyAdministrationDbContext companyAdministrationDbContext)
-        {
-            _companyAdministrationDbContext = companyAdministrationDbContext ?? throw new ArgumentNullException(nameof(companyAdministrationDbContext));
-        }
-
-        public bool Create(Project project)
+        public async Task<bool> Create(Project project)
         {
             if (_companyAdministrationDbContext.IsConnect())
             {
@@ -31,7 +28,7 @@ namespace DataLayer.Repositories
                     command.Parameters.AddWithValue("@startDate", project.StartDate);
                     command.Parameters.AddWithValue("@endDate", project.EndDate);
 
-                    int rows = command.ExecuteNonQuery();
+                    int rows = await command.ExecuteNonQueryAsync();
                     _companyAdministrationDbContext.Close();
                     return rows > 0;
                 }
@@ -44,7 +41,46 @@ namespace DataLayer.Repositories
             throw new Exception("Database connection is not established.");
         }
 
-        public List<Project> GetAll()
+        public async Task<Project> GetById(int id)
+                                            {
+                                                if (_companyAdministrationDbContext.IsConnect())
+                                                {
+                                                    try
+                                                    {
+                                                        var command = new MySqlCommand("SELECT * FROM Project WHERE id = @id", _companyAdministrationDbContext.Connection);
+                                                        command.Parameters.AddWithValue("@id", id);
+                                    
+                                                        using (var reader = await command.ExecuteReaderAsync())
+                                                        {
+                                                            if (await reader.ReadAsync())
+                                                            {
+                                                                var project = new Project
+                                                                {
+                                                                    Id = Convert.ToInt32(reader["id"]),
+                                                                    Name = reader["name"].ToString(),
+                                                                    Description = reader["description"].ToString(),
+                                                                    StartDate = Convert.ToDateTime(reader["startDate"]),
+                                                                    EndDate = Convert.ToDateTime(reader["endDate"]),
+                                                                    Users = new List<User>()
+                                                                };
+                                                                return project;
+                                                            }
+                                                        }
+                                                        return null;
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        throw new Exception("Error retrieving project by ID from the database.", ex);
+                                                    }
+                                                    finally
+                                                    {
+                                                        _companyAdministrationDbContext.Close();
+                                                    }
+                                                }
+                                                throw new Exception("Database connection is not established.");
+                                            }
+        
+        public async Task<List<Project>> GetAll()
         {
             var projects = new List<Project>();
             if (_companyAdministrationDbContext.IsConnect())
@@ -53,9 +89,9 @@ namespace DataLayer.Repositories
                 {
                     var command = new MySqlCommand("SELECT * FROM Project ORDER BY startDate DESC", _companyAdministrationDbContext.Connection);
 
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             projects.Add(new Project
                             {
@@ -64,7 +100,7 @@ namespace DataLayer.Repositories
                                 Description = reader["description"].ToString(),
                                 StartDate = Convert.ToDateTime(reader["startDate"]),
                                 EndDate = Convert.ToDateTime(reader["endDate"]),
-                                Users = new List<User>() // can be populated later if needed
+                                Users = new List<User>()
                             });
                         }
                     }
@@ -81,47 +117,8 @@ namespace DataLayer.Repositories
             }
             throw new Exception("Database connection is not established.");
         }
-
-        public Project? GetById(int id)
-        {
-            if (_companyAdministrationDbContext.IsConnect())
-            {
-                try
-                {
-                    var command = new MySqlCommand("SELECT * FROM Project WHERE id = @id", _companyAdministrationDbContext.Connection);
-                    command.Parameters.AddWithValue("@id", id);
-
-                    using (var reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            var project = new Project
-                            {
-                                Id = Convert.ToInt32(reader["id"]),
-                                Name = reader["name"].ToString(),
-                                Description = reader["description"].ToString(),
-                                StartDate = Convert.ToDateTime(reader["startDate"]),
-                                EndDate = Convert.ToDateTime(reader["endDate"]),
-                                Users = new List<User>()
-                            };
-                            return project;
-                        }
-                    }
-                    return null;
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Error retrieving project by ID from the database.", ex);
-                }
-                finally
-                {
-                    _companyAdministrationDbContext.Close();
-                }
-            }
-            throw new Exception("Database connection is not established.");
-        }
-
-        public bool Update(Project project)
+        
+        public async Task<bool> Update(Project project)
         {
             if (_companyAdministrationDbContext.IsConnect())
             {
@@ -138,7 +135,7 @@ namespace DataLayer.Repositories
                     command.Parameters.AddWithValue("@startDate", project.StartDate);
                     command.Parameters.AddWithValue("@endDate", project.EndDate);
 
-                    int rows = command.ExecuteNonQuery();
+                    int rows = await command.ExecuteNonQueryAsync();
                     _companyAdministrationDbContext.Close();
                     return rows > 0;
                 }
@@ -151,7 +148,7 @@ namespace DataLayer.Repositories
             throw new Exception("Database connection is not established.");
         }
 
-        public bool Delete(int id)
+        public async Task<bool> Delete(int id)
         {
             if (_companyAdministrationDbContext.IsConnect())
             {
@@ -160,7 +157,7 @@ namespace DataLayer.Repositories
                     var command = new MySqlCommand("DELETE FROM Project WHERE id = @id", _companyAdministrationDbContext.Connection);
                     command.Parameters.AddWithValue("@id", id);
 
-                    int rows = command.ExecuteNonQuery();
+                    int rows = await command.ExecuteNonQueryAsync();
                     _companyAdministrationDbContext.Close();
                     return rows > 0;
                 }

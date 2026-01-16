@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pageModels="clr-namespace:App.PageModels"
+             x:Class="App.Pages.AddUserPage"
+             NavigationPage.HasBackButton="False"
+             NavigationPage.HasNavigationBar="False"
+             x:DataType="pageModels:AddUserPageModel">
+
+    <Grid RowDefinitions="Auto,*" Padding="20">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,10" BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}">
+            <Button Grid.Column="0" 
+                    Text="← Назад" 
+                    Command="{Binding CancelCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    FontSize="16"
+                    HorizontalOptions="Start"/>
+
+            <Label Grid.Column="1" 
+                   Text="Добавяне на потребител" 
+                   FontSize="18" 
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Grid>
+            <ScrollView Grid.Row="1" 
+                         VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout>
+                <!-- Name -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Име *" FontSize="16" FontAttributes="Bold"/>
+                    <Entry Text="{Binding Name}" 
+                           Placeholder="Въведете пълно име"
+                           FontSize="16"/>
+                    <Label Text="{Binding NameError}" 
+                           TextColor="Red" 
+                           FontSize="12"
+                           IsVisible="{Binding HasNameError}"/>
+                </VerticalStackLayout>
+
+                <!-- Email -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Имейл *" FontSize="16" FontAttributes="Bold"/>
+                    <Entry Text="{Binding Email}" 
+                           Placeholder="Въведете имейл адрес"
+                           Keyboard="Email"
+                           FontSize="16"/>
+                    <Label Text="{Binding EmailError}" 
+                           TextColor="Red" 
+                           FontSize="12"
+                           IsVisible="{Binding HasEmailError}"/>
+                </VerticalStackLayout>
+
+                <!-- Password -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Парола *" FontSize="16" FontAttributes="Bold"/>
+                    <Entry Text="{Binding Password}" 
+                           Placeholder="Въведете парола"
+                           IsPassword="True"
+                           FontSize="16"/>
+                    <Label Text="{Binding PasswordError}" 
+                           TextColor="Red" 
+                           FontSize="12"
+                           IsVisible="{Binding HasPasswordError}"/>
+                </VerticalStackLayout>
+
+                <!-- Confirm Password -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Потвърди парола *" FontSize="16" FontAttributes="Bold"/>
+                    <Entry Text="{Binding ConfirmPassword}" 
+                           Placeholder="Потвърдете паролата"
+                           IsPassword="True"
+                           FontSize="16"/>
+                    <Label Text="{Binding ConfirmPasswordError}" 
+                           TextColor="Red" 
+                           FontSize="12"
+                           IsVisible="{Binding HasConfirmPasswordError}"/>
+                </VerticalStackLayout>
+
+                <!-- Role -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Роля *" FontSize="16" FontAttributes="Bold"/>
+                    <Picker Title="Изберете роля" 
+                            SelectedItem="{Binding SelectedRole}">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Служител</x:String>
+                                <x:String>Администратор</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                    <Label Text="{Binding RoleError}" 
+                           TextColor="Red" 
+                           FontSize="12"
+                           IsVisible="{Binding HasRoleError}"/>
+                </VerticalStackLayout>
+
+                <!-- Contract Days -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Дни отпуск по договор" FontSize="16" FontAttributes="Bold"/>
+                    <Entry Text="{Binding ContractDays}" 
+                        Placeholder="Въведете дни отпуск"
+                        Keyboard="Numeric"
+                        FontSize="16"/>
+                    <Label Text="{Binding ContractDaysError}" 
+                        TextColor="Red" 
+                        FontSize="12"
+                        IsVisible="{Binding HasContractDaysError}"/>
+                </VerticalStackLayout>
+
+                <!-- Buttons -->
+                <VerticalStackLayout Spacing="10" Margin="0,20,0,0">
+                    <Button Text="Добави потребител" 
+                            Command="{Binding AddUserCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"
+                            FontSize="16"
+                            HeightRequest="50"/>
+
+                    <Button Text="Отказ" 
+                            Command="{Binding CancelCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Primary}"
+                            FontSize="16"
+                            HeightRequest="50"/>
+                </VerticalStackLayout>
+
+                <!-- Loading Indicator -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                                   IsVisible="{Binding IsBusy}"
+                                   HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

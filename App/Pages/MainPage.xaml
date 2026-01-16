@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="App.Pages.MainPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:App.ViewModels"
+             xmlns:pageModels="clr-namespace:App.PageModels"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+            <VerticalStackLayout Grid.Column="0" Spacing="10">
+                <Label Text="Добре дошли отново!" 
+                       FontSize="24" 
+                       FontAttributes="Bold" 
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}"/>
+                <Label Text="{Binding UserName}" 
+                       FontSize="18" 
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+            </VerticalStackLayout>
+
+            <Button Grid.Column="1" 
+                    Text="Изход" 
+                    Command="{Binding LogoutCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}"
+                    FontSize="16"
+                    HorizontalOptions="End"
+                    VerticalOptions="Start"
+                    Margin="0,10,0,0"/>
+        </Grid>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Spacing="20">
+                <!-- Quick Stats -->
+                <Border Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+        StrokeThickness="1"
+        BackgroundColor="{AppThemeBinding Light={StaticResource Gray50}, Dark={StaticResource Gray800}}"
+        Padding="20">
+                    <Grid ColumnDefinitions="*,*,*,*,*,*" RowDefinitions="Auto,Auto">
+                        <!-- Header Row -->
+                        <Label Grid.Row="0" Grid.Column="0" Text="Дни отпуск по договор" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="Оставащи дни" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        <Label Grid.Row="0" Grid.Column="2" Text="Чакащи отсъствия" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        <Label Grid.Row="0" Grid.Column="3" Text="Одобрени отсъствия" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        <Label Grid.Row="0" Grid.Column="4" Text="Чакащи командировки" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        <Label Grid.Row="0" Grid.Column="5" Text="Одобрени командировки" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        <!-- Values Row -->
+                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding ContractDays}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Primary}"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding AbsenceDays}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Primary}"/>
+                        <Label Grid.Row="1" Grid.Column="2" Text="{Binding PendingAbsencesCount}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Warning}"/>
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding ApprovedAbsencesCount}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Success}"/>
+                        <Label Grid.Row="1" Grid.Column="4" Text="{Binding PendingTripsCount}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Warning}"/>
+                        <Label Grid.Row="1" Grid.Column="5" Text="{Binding ApprovedTripsCount}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Success}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Calendar View -->
+                <VerticalStackLayout Spacing="15">
+                    <!-- Month Navigation -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,10">
+                        <Button Grid.Column="0" 
+                        Text="&lt;" 
+                        FontSize="18" 
+                        WidthRequest="50"
+                        Command="{Binding PreviousMonthCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"/>
+
+                        <Label Grid.Column="1" 
+                       Text="{Binding CurrentMonthYear}" 
+                       FontSize="18" 
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+
+                        <Button Grid.Column="2" 
+                        Text="&gt;" 
+                        FontSize="18" 
+                        WidthRequest="50"
+                        Command="{Binding NextMonthCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"/>
+                    </Grid>
+
+                    <!-- Calendar Grid -->
+                    <Border Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                    StrokeThickness="1"
+                    StrokeShape="Rectangle"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+                        <Grid ColumnDefinitions="*,*,*,*,*,*,*" 
+                      RowDefinitions="Auto,*,*,*,*,*,*"
+                      Padding="0">
+
+                            <!-- Day Headers -->
+                            <Border Grid.Row="0" Grid.Column="0" 
+                            Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                            StrokeThickness="1">
+                                <Label Text="Нед" TextColor="Red" FontAttributes="Bold" HorizontalOptions="Center" Padding="10"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="1" 
+                            Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                            StrokeThickness="1">
+                                <Label Text="Пон" FontAttributes="Bold" HorizontalOptions="Center" Padding="10"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="2" 
+                            Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                            StrokeThickness="1">
+                                <Label Text="Вт" FontAttributes="Bold" HorizontalOptions="Center" Padding="10"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="3" 
+                            Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                            StrokeThickness="1">
+                                <Label Text="Ср" FontAttributes="Bold" HorizontalOptions="Center" Padding="10"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="4" 
+                            Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                            StrokeThickness="1">
+                                <Label Text="Чет" FontAttributes="Bold" HorizontalOptions="Center" Padding="10"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="5" 
+                            Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                            StrokeThickness="1">
+                                <Label Text="Пет" FontAttributes="Bold" HorizontalOptions="Center" Padding="10"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="6" 
+                            Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                            StrokeThickness="1">
+                                <Label Text="Съб" TextColor="Red" FontAttributes="Bold" HorizontalOptions="Center" Padding="10"/>
+                            </Border>
+
+                            <!-- Calendar Days -->
+                            <CollectionView Grid.Row="1" Grid.RowSpan="6" Grid.ColumnSpan="7"
+                                    ItemsSource="{Binding CalendarDays}"
+                                    SelectionMode="Single"
+                                    SelectionChanged="OnDaySelected">
+                                <CollectionView.ItemsLayout>
+                                    <GridItemsLayout Orientation="Vertical" 
+                                            Span="7" 
+                                            HorizontalItemSpacing="0" 
+                                            VerticalItemSpacing="0"/>
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                                        StrokeThickness="1"
+                                        BackgroundColor="{Binding BackgroundColor}"
+                                        Padding="0">
+                                            <Grid RowDefinitions="Auto,Auto" HeightRequest="60">
+                                                <Label Grid.Row="0" 
+                                               Text="{Binding DayNumber}" 
+                                               FontSize="14"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               TextColor="{Binding TextColor}"
+                                               Margin="0,5,0,0"/>
+
+                                                <Grid Grid.Row="1" RowDefinitions="Auto,Auto" ColumnDefinitions="*,*" 
+                                              HorizontalOptions="Center" VerticalOptions="Center"
+                                              Margin="0,0,0,5">
+                                                    <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2" HorizontalOptions="Center">
+                                                        <Frame IsVisible="{Binding HasBusinessTrips}"
+                                                       BackgroundColor="{StaticResource Primary}"
+                                                       CornerRadius="2"
+                                                       HeightRequest="4"
+                                                       WidthRequest="20"
+                                                       HasShadow="False"/>
+                                                        <Frame IsVisible="{Binding HasPendingTrips}"
+                                                       BackgroundColor="{StaticResource Warning}"
+                                                       CornerRadius="2"
+                                                       HeightRequest="4"
+                                                       WidthRequest="20"
+                                                       HasShadow="False"/>
+                                                        <Frame IsVisible="{Binding HasRejectedTrips}"
+                                                       BackgroundColor="{StaticResource Error}"
+                                                       CornerRadius="2"
+                                                       HeightRequest="4"
+                                                       WidthRequest="20"
+                                                       HasShadow="False"/>
+                                                    </VerticalStackLayout>
+
+                                                    <!-- Absence Indicators -->
+                                                    <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2" HorizontalOptions="Center">
+                                                        <Frame IsVisible="{Binding HasApprovedAbsences}"
+                                                       BackgroundColor="{StaticResource Primary}"
+                                                       CornerRadius="2"
+                                                       HeightRequest="4"
+                                                       WidthRequest="20"
+                                                       HasShadow="False"/>
+                                                        <Frame IsVisible="{Binding HasPendingAbsences}"
+                                                       BackgroundColor="{StaticResource Warning}"
+                                                       CornerRadius="2"
+                                                       HeightRequest="4"
+                                                       WidthRequest="20"
+                                                       HasShadow="False"/>
+                                                        <Frame IsVisible="{Binding HasRejectedAbsences}"
+                                                       BackgroundColor="{StaticResource Error}"
+                                                       CornerRadius="2"
+                                                       HeightRequest="4"
+                                                       WidthRequest="20"
+                                                       HasShadow="False"/>
+                                                    </VerticalStackLayout>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Grid>
+                    </Border>
+
+                    <!-- Legend -->
+                    <Border Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                    StrokeThickness="1"
+                    StrokeShape="Rectangle"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray50}, Dark={StaticResource Gray800}}"
+                    Padding="15">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Легенда на календара" FontAttributes="Bold" FontSize="16" HorizontalOptions="Center"/>
+
+                            <!-- Day Types -->
+                            <Label Text="Типове дни:" FontAttributes="Bold" FontSize="14" Margin="0,5,0,0"/>
+                            <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto">
+                                <BoxView Grid.Row="0" Grid.Column="0" 
+                                 Color="{StaticResource Primary}" 
+                                 WidthRequest="20" 
+                                 HeightRequest="20" 
+                                 CornerRadius="2"
+                                 Margin="5,5,5,5"/>
+                                <Label Grid.Row="0" Grid.Column="1" Text="Избран ден" VerticalOptions="Center"/>
+
+                                <BoxView Grid.Row="1" Grid.Column="0" 
+                                 Color="LightPink" 
+                                 WidthRequest="20" 
+                                 HeightRequest="20" 
+                                 CornerRadius="2"
+                                 Margin="5,5,5,5"/>
+                                <Label Grid.Row="1" Grid.Column="1" Text="Официален празник" VerticalOptions="Center"/>
+
+                                <BoxView Grid.Row="0" Grid.Column="2" 
+                                 Color="LightBlue" 
+                                 WidthRequest="20" 
+                                 HeightRequest="20" 
+                                 CornerRadius="2"
+                                 Margin="5,5,5,5"/>
+                                <Label Grid.Row="0" Grid.Column="3" Text="Персонализиран празник" VerticalOptions="Center"/>
+                            </Grid>
+
+                            <!-- Business Trip Indicators -->
+                            <Label Text="Индикатори за командировки:" FontAttributes="Bold" FontSize="14" Margin="0,5,0,0"/>
+                            <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto">
+                                <BoxView Grid.Row="0" Grid.Column="0" 
+                                 Color="{StaticResource Primary}" 
+                                 WidthRequest="20" 
+                                 HeightRequest="4" 
+                                 CornerRadius="2"
+                                 Margin="0,0,5,0"
+                                 VerticalOptions="Center"/>
+                                <Label Grid.Row="0" Grid.Column="1" Text="Одобрена" VerticalOptions="Center"/>
+
+                                <BoxView Grid.Row="0" Grid.Column="2" 
+                                 Color="{StaticResource Warning}" 
+                                 WidthRequest="20" 
+                                 HeightRequest="4" 
+                                 CornerRadius="2"
+                                 Margin="0,0,5,0"
+                                 VerticalOptions="Center"/>
+                                <Label Grid.Row="0" Grid.Column="3" Text="Изчакваща" VerticalOptions="Center"/>
+
+                                <BoxView Grid.Row="1" Grid.Column="0" 
+                                 Color="{StaticResource Error}" 
+                                 WidthRequest="20" 
+                                 HeightRequest="4" 
+                                 CornerRadius="2"
+                                 Margin="0,0,5,0"
+                                 VerticalOptions="Center"/>
+                                <Label Grid.Row="1" Grid.Column="1" Text="Отхвърлена" VerticalOptions="Center"/>
+                            </Grid>
+
+                            <!-- Absence Indicators -->
+                            <Label Text="Индикатори за отсъствия:" FontAttributes="Bold" FontSize="14" Margin="0,5,0,0"/>
+                            <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto">
+                                <BoxView Grid.Row="0" Grid.Column="0" 
+                                 Color="{StaticResource Primary}" 
+                                 WidthRequest="20" 
+                                 HeightRequest="4" 
+                                 CornerRadius="2"
+                                 Margin="0,0,5,0"
+                                 VerticalOptions="Center"/>
+                                <Label Grid.Row="0" Grid.Column="1" Text="Одобрено" VerticalOptions="Center"/>
+
+                                <BoxView Grid.Row="0" Grid.Column="2" 
+                                 Color="{StaticResource Warning}" 
+                                 WidthRequest="20" 
+                                 HeightRequest="4" 
+                                 CornerRadius="2"
+                                 Margin="0,0,5,0"
+                                 VerticalOptions="Center"/>
+                                <Label Grid.Row="0" Grid.Column="3" Text="Изчакващо" VerticalOptions="Center"/>
+
+                                <BoxView Grid.Row="1" Grid.Column="0" 
+                                 Color="{StaticResource Error}" 
+                                 WidthRequest="20" 
+                                 HeightRequest="4" 
+                                 CornerRadius="2"
+                                 Margin="0,0,5,0"
+                                 VerticalOptions="Center"/>
+                                <Label Grid.Row="1" Grid.Column="1" Text="Отхвърлено" VerticalOptions="Center"/>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Selected Day Details -->
+                    <Border IsVisible="{Binding IsDaySelected}"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                    StrokeThickness="1"
+                    StrokeShape="Rectangle"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    Padding="15">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="{Binding SelectedDayTitle}" FontAttributes="Bold" FontSize="18"/>
+
+                            <!-- Holiday Info -->
+                            <Frame IsVisible="{Binding SelectedDay.IsHoliday}"
+                           BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}"
+                           Padding="10"
+                           CornerRadius="5">
+                                <HorizontalStackLayout Spacing="10">
+                                    <BoxView Color="{Binding SelectedDay.HolidayColor}" 
+                                       WidthRequest="20" 
+                                       HeightRequest="20" 
+                                       CornerRadius="2"
+                                       VerticalOptions="Center"/>
+                                    <Label Text="{Binding SelectedDay.HolidayName}"
+                                       FontAttributes="Bold"
+                                       VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                            </Frame>
+
+
+                            <!-- Business Trips List -->
+                            <Label Text="Командировки:" 
+                               IsVisible="{Binding SelectedDay.HasAnyTrips}"
+                               FontAttributes="Bold"/>
+
+                            <CollectionView ItemsSource="{Binding SelectedDayTrips}"
+                                    HeightRequest="150"
+                                    IsVisible="{Binding SelectedDay.HasAnyTrips}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray700}}"
+                                        StrokeThickness="1"
+                                        StrokeShape="Rectangle"
+                                        Margin="0,5"
+                                        Padding="10">
+                                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                                <Label Grid.Row="0" Grid.Column="0" 
+                                                   Text="{Binding UserFullName}" 
+                                                   FontAttributes="Bold"/>
+                                                <Label Grid.Row="0" Grid.Column="1" 
+                                                   Text="{Binding StatusText}" 
+                                                   TextColor="{Binding StatusColor}"/>
+
+                                                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                   Text="{Binding ProjectName}" 
+                                                   FontSize="12"/>
+
+                                                <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                                   Text="{Binding CarTripDestination}" 
+                                                   FontSize="12"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+
+                            <Label Text="Няма командировки за този ден"
+                               IsVisible="{Binding SelectedDay.HasNoTrips}"
+                               FontAttributes="Italic"
+                               HorizontalOptions="Center"/>
+
+                            <Label Text="Отсъствия:" 
+                               IsVisible="{Binding SelectedDay.HasAnyAbsences}"
+                               FontAttributes="Bold"/>
+
+                            <CollectionView ItemsSource="{Binding SelectedDayAbsences}"
+                                    HeightRequest="150"
+                                    IsVisible="{Binding SelectedDay.HasAnyAbsences}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray700}}"
+                                        StrokeThickness="1"
+                                        StrokeShape="Rectangle"
+                                        Margin="0,5"
+                                        Padding="10">
+                                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                                <Label Grid.Row="0" Grid.Column="0" 
+                                                   Text="{Binding UserName}" 
+                                                   FontAttributes="Bold"/>
+                                                <Label Grid.Row="0" Grid.Column="1" 
+                                                   Text="{Binding StatusText}" 
+                                                   TextColor="{Binding StatusColor}"/>
+
+                                                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                   Text="{Binding TypeText}" 
+                                                   FontSize="12"
+                                                   TextColor="{Binding TypeColor}"/>
+
+                                                <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                                   Text="{Binding DateRange}" 
+                                                   FontSize="12"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+
+                            <Label Text="Няма отсъствия за този ден"
+                               IsVisible="{Binding SelectedDay.HasNoAbsences}"
+                               FontAttributes="Italic"
+                               HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <Border Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                        StrokeThickness="1"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                        Padding="20">
+                    <VerticalStackLayout Spacing="15">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Скорошни отпуски" FontAttributes="Bold" FontSize="18"/>
+                            <Button Grid.Column="1" 
+                                    Text="Виж всички" 
+                                    Command="{Binding ViewAllAbsencesCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource Primary}"
+                                    FontSize="14"
+                                    HorizontalOptions="End"/>
+                        </Grid>
+
+                        <CollectionView ItemsSource="{Binding RecentAbsences}" 
+                                        VerticalScrollBarVisibility="Never"
+                                        HeightRequest="200">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="viewModels:AbsenceViewModel">
+                                    <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray700}}"
+                                            StrokeThickness="1"
+                                            Margin="0,5"
+                                            Padding="15">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type pageModels:MainPageModel}}, Path=AbsenceTappedCommand}" 
+                                                                  CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                            <Label Grid.Row="0" Grid.Column="0" 
+                                                   Text="{Binding TypeText}" 
+                                                   FontAttributes="Bold"/>
+                                            <Label Grid.Row="0" Grid.Column="1" 
+                                                   Text="{Binding StatusText}" 
+                                                   TextColor="{Binding StatusColor}"/>
+
+                                            <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                   Text="{Binding DateRange}" 
+                                                   FontSize="12"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Label IsVisible="{Binding NoAbsences}"
+                               Text="Няма скорошни отпуски" 
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                        StrokeThickness="1"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                        Padding="20">
+                    <VerticalStackLayout Spacing="15">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Скорошни командировки" FontAttributes="Bold" FontSize="18"/>
+                            <Button Grid.Column="1" 
+                                    Text="Виж всички" 
+                                    Command="{Binding ViewAllBusinessTripsCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource Primary}"
+                                    FontSize="14"
+                                    HorizontalOptions="End"/>
+                        </Grid>
+
+                        <CollectionView ItemsSource="{Binding RecentBusinessTrips}" 
+                                        VerticalScrollBarVisibility="Never"
+                                        HeightRequest="250">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="viewModels:BusinessTripViewModel">
+                                    <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray700}}"
+                                            StrokeThickness="1"
+                                            Margin="0,5"
+                                            Padding="15">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type pageModels:MainPageModel}}, Path=BusinessTripTappedCommand}" 
+                                                                  CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
+                                            <Label Grid.Row="0" Grid.Column="0" 
+                                                   Text="{Binding ProjectName}" 
+                                                   FontAttributes="Bold"/>
+                                            <Label Grid.Row="0" Grid.Column="1" 
+                                                   Text="{Binding StatusText}" 
+                                                   TextColor="{Binding StatusColor}"/>
+
+                                            <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                   Text="{Binding Task}" 
+                                                   FontSize="12"/>
+
+                                            <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                                   Text="{Binding DateRange}" 
+                                                   FontSize="12"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+
+                                            <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                                   Text="{Binding Destination}" 
+                                                   FontSize="12"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Label IsVisible="{Binding NoBusinessTrips}"
+                               Text="Няма скорошни командировки" 
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"/>
+                    </VerticalStackLayout>
+                </Border>
+                
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                    <Button Grid.Column="0" 
+                            Text="Заявка за отпуск" 
+                            Command="{Binding RequestAbsenceCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"/>
+
+                    <Button Grid.Column="1" 
+                            Text="Заявка за командировка" 
+                            Command="{Binding RequestBusinessTripCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"/>
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <ActivityIndicator Grid.Row="2" 
+                          IsRunning="{Binding IsBusy}" 
+                          IsVisible="{Binding IsBusy}"
+                          HorizontalOptions="Center"/>
+    </Grid>
+</ContentPage>

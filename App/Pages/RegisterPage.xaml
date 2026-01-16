@@ -1,0 +1,97 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="App.Pages.RegisterPage"
+             xmlns:viewmodel="clr-namespace:App.PageModels"
+             x:DataType="viewmodel:RegisterPageModel"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource LightBackground}, Dark={StaticResource DarkBackground}}">
+
+    <ScrollView VerticalScrollBarVisibility="Never">
+        <Grid RowDefinitions="Auto,Auto,Auto" 
+              RowSpacing="30"
+              Padding="20,40,20,20"
+              VerticalOptions="Center">
+
+            <!-- Header Section -->
+            <VerticalStackLayout Grid.Row="0" Spacing="10" HorizontalOptions="Center">
+                <Label Text="Добре дошли отново!" 
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center" />
+
+                <Label Text="" 
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- Form Section -->
+            <VerticalStackLayout Grid.Row="1" Spacing="20" Margin="15,0" MinimumWidthRequest="200" MaximumWidthRequest="400">
+                <!-- Email -->
+                <Frame CornerRadius="12" 
+                       BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray700}}"
+                       BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                       Padding="0"
+                       HeightRequest="60">
+                    <Entry Text="{Binding Email}" 
+                           Placeholder="Имейл адрес"
+                           PlaceholderColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"
+                           Keyboard="Email"
+                           ClearButtonVisibility="WhileEditing"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                           BackgroundColor="Transparent"/>
+                </Frame>
+
+                <!-- Password -->
+                <Frame CornerRadius="12" 
+                       BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray700}}"
+                       BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                       Padding="0"
+                       HeightRequest="60">          
+                    <Grid ColumnDefinitions="*,Auto">
+                            <Entry Grid.Column="0"
+                   Text="{Binding Password}" 
+                   Placeholder="Парола"
+                   PlaceholderColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"
+                   IsPassword="{Binding IsPasswordHidden}"
+                   FontSize="14"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                   BackgroundColor="Transparent"/>
+
+                        <ImageButton
+        Source="{Binding EyeIcon}"
+        BackgroundColor="Transparent"
+        HorizontalOptions="End"
+                            Command="{Binding TogglePasswordCommand}"
+        VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+
+
+                <!-- Error Message -->
+                <Label Text="{Binding ErrorMessage}" 
+                       TextColor="{StaticResource Error}"
+                       FontSize="12"
+                       Margin="0,-10,0,0"
+                       IsVisible="{Binding ErrorMessage}"/>
+            </VerticalStackLayout>
+
+            <!-- Footer Section -->
+            <VerticalStackLayout Grid.Row="2" Spacing="20" Margin="15,0" MinimumWidthRequest="200" MaximumWidthRequest="400">
+                <!-- Register Button -->
+                <Button Text="Вход" 
+                        Command="{Binding RegisterCommand}"
+                        IsEnabled="{Binding IsEnabled}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        CornerRadius="12"
+                        HeightRequest="50"
+                        FontSize="16"
+                        FontAttributes="Bold"/>
+
+                <!-- Divider -->
+            </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pm="clr-namespace:App.PageModels"
+                xmlns:vm="clr-namespace:App.ViewModels"
+             x:Class="App.Pages.BusinessTripsSummaryPage"
+             x:DataType="pm:BusinessTripsSummaryPageModel"
+             Title="Командировки">
+
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="10">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,10" BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}">
+            <Button Grid.Column="0"
+            Text="← Назад" 
+            Command="{Binding BackCommand}"
+            BackgroundColor="Transparent"
+            TextColor="White"
+            FontSize="16"
+            HorizontalOptions="Start"/>
+
+            <Label Grid.Column="1" 
+           Text="Отчети" 
+           FontSize="18" 
+           FontAttributes="Bold"
+           TextColor="White"
+           HorizontalOptions="Center"
+           VerticalOptions="Center"/>
+
+            <Button Grid.Column="2" 
+            Text="Експортирай" 
+            Command="{Binding ExportCommand}"
+            BackgroundColor="Transparent"
+            TextColor="White"
+            FontSize="16"
+            HorizontalOptions="End"/>
+        </Grid>
+        <!-- Filter Controls -->
+        <StackLayout Grid.Row="1" Orientation="Horizontal" Spacing="10">
+            <Label Text="Избери година:" VerticalOptions="Center" HorizontalOptions="Start"/>
+            <Picker x:Name="YearPicker" VerticalOptions="Center" WidthRequest="120"
+                    ItemsSource="{Binding AvailableYears}"
+                    SelectedIndexChanged="SelectedIndexChanged"
+                    SelectedItem="{Binding SelectedYear}"/>
+            <Label Text="Избери месец:" VerticalOptions="Center" HorizontalOptions="Start"/>
+            <Picker x:Name="MonthPicker" VerticalOptions="Center" WidthRequest="150"
+                    ItemsSource="{Binding AvailableMonths}"
+                    SelectedIndexChanged="SelectedIndexChanged"
+                    SelectedItem="{Binding SelectedMonth}"/>
+            <Label Text="Избери проект:" VerticalOptions="Center" HorizontalOptions="Start"/>
+            <Picker x:Name="ProjectPicker" VerticalOptions="Center" WidthRequest="200"
+                    ItemsSource="{Binding AvailableProjects}"
+                    SelectedIndexChanged="SelectedIndexChanged"
+                    SelectedItem="{Binding SelectedProject}"/>
+
+           <Label Text="Общи разходи:" VerticalOptions="Center" HorizontalOptions="End"/>
+           <Label Text="{Binding Summary}" TextColor="{StaticResource Primary}" FontSize="Body" HorizontalOptions="End" VerticalOptions="Center"/>
+        </StackLayout>
+
+        <!-- Trips Collection -->
+        <RefreshView Grid.Row="2" Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView ItemsSource="{Binding Trips}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:BusinessTripViewModel">
+                        <Frame Padding="10" Margin="0,0,0,10">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                                <!-- Header with status -->
+                                <Grid Grid.Row="0" Grid.ColumnSpan="2">
+                                    <Label Text="{Binding UserName}" FontAttributes="Bold" FontSize="16"/>
+                                    <Frame HorizontalOptions="End" BackgroundColor="{Binding StatusColor}" Padding="5">
+                                        <Label Text="{Binding StatusText}" TextColor="White"/>
+                                    </Frame>
+                                </Grid>
+
+                                <!-- Trip details -->
+                                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding ProjectName}" FontAttributes="Italic"/>
+                                <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Destination}"/>
+                                <Label Grid.Row="3" Grid.ColumnSpan="2" Text="{Binding DateRange}"/>
+
+                                <!-- Wage and accommodation -->
+                                <StackLayout Grid.Row="4" Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                                    <Label Text="{Binding Wage, StringFormat='Дневни: {0:C}'}"/>
+                                    <Label Text="{Binding AccommodationMoney, StringFormat='Настаняване: {0:C}'}"/>
+                                </StackLayout>
+
+                                <!-- Created date -->
+                                <Label Grid.Row="4" Grid.Column="1" Text="{Binding CreatedDate}" HorizontalOptions="End"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Loading indicator -->
+        <ActivityIndicator Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsLoading}" IsRunning="True"
+                           HorizontalOptions="Center" VerticalOptions="Center" Color="{StaticResource Primary}"/>
+
+        <!-- Empty state -->
+        <Label Grid.Row="2" Text="Няма намерени служебни пътувания" IsVisible="{Binding HasNoResults}"
+               HorizontalOptions="Center" VerticalOptions="Center" FontAttributes="Italic"/>
+    </Grid>
+</ContentPage>
