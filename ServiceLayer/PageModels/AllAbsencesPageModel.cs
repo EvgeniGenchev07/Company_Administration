@@ -1,9 +1,10 @@
-﻿using ServiceLayer.Services;
+﻿using ApplicationLayer.Interfaces;
 using ApplicationLayer.ViewModels;
 using BusinessLayer.Entities;
 using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ServiceLayer.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
@@ -14,7 +15,7 @@ namespace ServiceLayer.PageModels;
 
 public partial class AllAbsencesPageModel : ObservableObject, INotifyPropertyChanged
 {
-    private readonly DatabaseService _dbService;
+    private readonly IDatabaseService _dbService;
     private bool _isBusy;
     private bool _isRefreshing;
     private int _totalAbsences;
@@ -136,7 +137,7 @@ public partial class AllAbsencesPageModel : ObservableObject, INotifyPropertyCha
     public ICommand BackCommand { get; }
     public ICommand RefreshCommand { get; }
 
-    public AllAbsencesPageModel(DatabaseService dbService)
+    public AllAbsencesPageModel(IDatabaseService dbService)
     {
         _dbService = dbService;
 

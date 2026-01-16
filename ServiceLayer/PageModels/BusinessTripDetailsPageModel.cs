@@ -1,6 +1,7 @@
+using ApplicationLayer.Interfaces;
 using ApplicationLayer.ViewModels;
-using BusinessLayer.Enums;
 using BusinessLayer.Entities;
+using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ServiceLayer.Services;
@@ -11,7 +12,7 @@ namespace ServiceLayer.PageModels
 {
     public partial class BusinessTripDetailsPageModel : ObservableObject
     {
-        private readonly DatabaseService _dbService;
+        private readonly IDatabaseService _dbService;
         private readonly HttpClient _httpClient = new HttpClient();
         public static BusinessTripViewModel SelectedBusinessTrip;
         [ObservableProperty]
@@ -36,7 +37,7 @@ namespace ServiceLayer.PageModels
         public string EditButtonText => IsEditing ? "Запази" : "Редактирай";
         public decimal TotalExpenses => Wage * BusinessTrip.TotalDays + AccommodationMoney * BusinessTrip.TotalDays + AdditionalExpences;
         public BusinessTripDetailsPageModel(){}
-        public BusinessTripDetailsPageModel(DatabaseService service)
+        public BusinessTripDetailsPageModel(IDatabaseService service)
         {
             BusinessTrip = SelectedBusinessTrip.BusinessTrip;
             _dbService = service;

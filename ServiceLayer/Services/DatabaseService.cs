@@ -1,24 +1,26 @@
-﻿using BusinessLayer;
+﻿using ApplicationLayer.Interfaces;
+using BusinessLayer;
 using BusinessLayer.Entities;
 using BusinessLayer.Enums;
 using DataLayer;
+using DataLayer.Interfaces.Repository;
 using DataLayer.Repositories;
 using ServiceLayer.Services;
 using System.Text;
 using System.Text.Json;
 namespace ServiceLayer.Services
 {
-    public class DatabaseService
+    public class DatabaseService : IDatabaseService
     {
-        private readonly AuthenticationService _authenticationService;
-        private readonly BusinessTripContext _businessTripContext;
-        private readonly HolidayDayContext _holidayDayContext;
-        private readonly UserContext _userContext;
-        private readonly AbsenceContext _absenceContext;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IBusinessTripContext _businessTripContext;
+        private readonly IHolidayDayContext _holidayDayContext;
+        private readonly IUserContext _userContext;
+        private readonly IAbsenceContext _absenceContext;
         internal static User User;
 
-        public DatabaseService(AuthenticationService authenticationContext, BusinessTripContext businessTripContext,
-            HolidayDayContext holidayDayContext, UserContext userContext, AbsenceContext absenceContext)
+        public DatabaseService(IAuthenticationService authenticationContext, IBusinessTripContext businessTripContext,
+            IHolidayDayContext holidayDayContext, IUserContext userContext, IAbsenceContext absenceContext)
         {
             _authenticationService = authenticationContext ?? throw new ArgumentNullException(nameof(authenticationContext));
             _businessTripContext = businessTripContext ?? throw new ArgumentNullException(nameof(businessTripContext));

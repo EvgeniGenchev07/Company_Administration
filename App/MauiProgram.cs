@@ -1,5 +1,7 @@
 ﻿using App.Pages;
+using ApplicationLayer.Interfaces;
 using CommunityToolkit.Maui;
+using DataLayer.Interfaces.Repository;
 using DataLayer.Persistence;
 using DataLayer.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -42,12 +44,12 @@ namespace App
             builder.Services.AddTransientWithShellRoute<BusinessTripsPage, BusinessTripsPageModel>("businesstrips");
             builder.Services.AddTransientWithShellRoute<BusinessTripsSummaryPage, BusinessTripsSummaryPageModel>("BusinessTripsSummaryPage");
             builder.Services.AddTransientWithShellRoute<BusinessTripDetailsPage, BusinessTripDetailsPageModel>("businesstripdetails");
-            builder.Services.AddScoped<DatabaseService>();
-            builder.Services.AddScoped<BusinessTripContext>();
-            builder.Services.AddScoped<AbsenceContext>();
-            builder.Services.AddScoped<UserContext>();
-            builder.Services.AddScoped<HolidayDayContext>();
-            builder.Services.AddScoped<AuthenticationService>();
+            builder.Services.AddScoped<IDatabaseService,DatabaseService>();
+            builder.Services.AddScoped<IAuthenticationService,AuthenticationService>();
+            builder.Services.AddScoped<IBusinessTripContext, BusinessTripContext>();
+            builder.Services.AddScoped<IAbsenceContext,AbsenceContext>();
+            builder.Services.AddScoped<IUserContext,UserContext>();
+            builder.Services.AddScoped<IHolidayDayContext,HolidayDayContext>();
             const string connectionString = "sfsfdf";
             builder.Services.AddScoped(_=>
             {

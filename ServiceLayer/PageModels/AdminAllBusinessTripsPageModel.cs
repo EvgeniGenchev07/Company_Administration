@@ -1,8 +1,9 @@
-﻿using ServiceLayer.Services;
+﻿using ApplicationLayer.Interfaces;
 using ApplicationLayer.ViewModels;
 using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ServiceLayer.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -12,7 +13,7 @@ namespace ServiceLayer.PageModels;
 
 public partial class AdminAllBusinessTripsPageModel : ObservableObject, INotifyPropertyChanged
 {
-    private readonly DatabaseService _dbService;
+    private readonly IDatabaseService _dbService;
     private bool _isBusy;
     private bool _isRefreshing;
 
@@ -95,7 +96,7 @@ public partial class AdminAllBusinessTripsPageModel : ObservableObject, INotifyP
     public ICommand CancelCommand { get; }
     public ICommand RefreshCommand { get; }
 
-    public AdminAllBusinessTripsPageModel(DatabaseService dbService)
+    public AdminAllBusinessTripsPageModel(IDatabaseService dbService)
     {
         _dbService = dbService;
 

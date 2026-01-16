@@ -1,20 +1,21 @@
-﻿using ServiceLayer.Services;
+﻿using ApplicationLayer.Interfaces;
 using ApplicationLayer.ViewModels; 
 using BusinessLayer.Entities;
+using BusinessLayer.Enums;
+using ClosedXML.Excel;
+using CommunityToolkit.Maui.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using ServiceLayer.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
-using CommunityToolkit.Mvvm.ComponentModel;
-using BusinessLayer.Enums;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Maui.Storage;
-using ClosedXML.Excel;
 
 namespace ServiceLayer.PageModels;
 
 public partial class AdminAllAbsencesPageModel : ObservableObject
 {
-    private readonly DatabaseService _dbService;
+    private readonly IDatabaseService _dbService;
     [ObservableProperty]
     private bool _isBusy;
     [ObservableProperty]
@@ -42,7 +43,7 @@ public partial class AdminAllAbsencesPageModel : ObservableObject
     public int RejectedAbsences => Absences.Count(a => a.Status == AbsenceStatus.Rejected);
     public bool HasNoResults => !(Absences.Any());
 
-    public AdminAllAbsencesPageModel(DatabaseService dbService)
+    public AdminAllAbsencesPageModel(IDatabaseService dbService)
     {
         _dbService = dbService;
         AvailableYears = new ObservableCollection<int>(Enumerable.Range(DateTime.Now.Year - 5, 10));

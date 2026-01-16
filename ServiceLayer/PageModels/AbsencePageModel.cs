@@ -1,18 +1,19 @@
-﻿using ServiceLayer.Services;
+﻿using ApplicationLayer.Interfaces;
 using BusinessLayer;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ServiceLayer.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
-using BusinessLayer.Enums;
-using BusinessLayer.Entities;
 
 namespace ServiceLayer.PageModels;
 
 public partial class AbsencePageModel : ObservableObject
 {
-    private readonly DatabaseService _dbService;
+    private readonly IDatabaseService _dbService;
 
     [ObservableProperty]
     private string _employeeName;
@@ -52,7 +53,7 @@ public partial class AbsencePageModel : ObservableObject
     private byte duration;
     public byte DurationDays => duration;
 
-    public AbsencePageModel(DatabaseService dbService)
+    public AbsencePageModel(IDatabaseService dbService)
     {
         _dbService = dbService;
         LoadUserData();

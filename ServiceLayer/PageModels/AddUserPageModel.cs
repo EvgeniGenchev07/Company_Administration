@@ -1,17 +1,18 @@
-﻿using ServiceLayer.Services;
+﻿using ApplicationLayer.Interfaces;
 using BusinessLayer;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
+using ServiceLayer.Services;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Windows.Input;
-using BusinessLayer.Entities;
-using BusinessLayer.Enums;
 
 namespace ServiceLayer.PageModels;
 
 public class AddUserPageModel : INotifyPropertyChanged
 {
-    private readonly DatabaseService _dbService;
+    private readonly IDatabaseService _dbService;
     private bool _isBusy;
     private string _name = string.Empty;
     private string _email = string.Empty;
@@ -130,7 +131,7 @@ public class AddUserPageModel : INotifyPropertyChanged
     public ICommand AddUserCommand { get; }
     public ICommand CancelCommand { get; }
 
-    public AddUserPageModel(DatabaseService dbService)
+    public AddUserPageModel(IDatabaseService dbService)
     {
         _dbService = dbService;
 

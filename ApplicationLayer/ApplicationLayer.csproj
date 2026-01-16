@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Include="ViewModels\AbsenceViewModel.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Microsoft.Maui.Graphics" Version="9.0.120" />
     </ItemGroup>
 

@@ -1,19 +1,20 @@
-﻿using ServiceLayer.Services;
+﻿using ApplicationLayer.Interfaces;
 using ApplicationLayer.ViewModels;
 using BusinessLayer;
+using BusinessLayer.Enums;
 using ClosedXML.Excel;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ServiceLayer.Services;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using BusinessLayer.Enums;
 namespace ServiceLayer.PageModels;
 
 public partial class BusinessTripsSummaryPageModel : ObservableObject
 {
-    private readonly DatabaseService _dbService;
-    public BusinessTripsSummaryPageModel(DatabaseService dbService)
+    private readonly IDatabaseService _dbService;
+    public BusinessTripsSummaryPageModel(IDatabaseService dbService)
     {
         _dbService = dbService;
 

@@ -1,9 +1,10 @@
-﻿using ServiceLayer.Services;
+﻿using ApplicationLayer.Interfaces;
 using ApplicationLayer.ViewModels;
 using BusinessLayer.Entities;
 using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ServiceLayer.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -13,7 +14,7 @@ namespace ServiceLayer.PageModels;
 
 public partial class AdminPageModel : ObservableObject, INotifyPropertyChanged
 {
-    private readonly DatabaseService _dbService;
+    private readonly IDatabaseService _dbService;
     private DateTime _currentDate;
     private bool _isBusy;
     private bool _isDaySelected;
@@ -117,7 +118,7 @@ public partial class AdminPageModel : ObservableObject, INotifyPropertyChanged
     private List<BusinessTrip> _allBusinessTrips = new();
     private List<Absence> _allAbsences = new();
 
-    public AdminPageModel(DatabaseService dbService)
+    public AdminPageModel(IDatabaseService dbService)
     {
         _dbService = dbService;
         _currentDate = DateTime.Now;

@@ -2,8 +2,8 @@
 <ContentPage x:Class="App.Pages.MainPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewModels="clr-namespace:App.ViewModels"
-             xmlns:pageModels="clr-namespace:App.PageModels"
+             xmlns:viewModels="clr-namespace:ApplicationLayer.ViewModels;assembly=ApplicationLayer"
+             xmlns:pageModels="clr-namespace:ServiceLayer.PageModels;assembly=ServiceLayer"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}">
 
     <Grid RowDefinitions="Auto,*,Auto" Padding="20">

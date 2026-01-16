@@ -1,4 +1,6 @@
-﻿using BusinessLayer.Entities;
+﻿using ApplicationLayer.Interfaces;
+using BusinessLayer.Entities;
+using DataLayer.Interfaces.Repository;
 using DataLayer.Repositories;
 using System;
 using System.Collections.Generic;
@@ -9,10 +11,10 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.Services
 {
-    public class AuthenticationService
+    public class AuthenticationService : IAuthenticationService
     {
-            private readonly UserContext _userContext;
-            public AuthenticationService(UserContext userContext)
+            private readonly IUserContext _userContext;
+            public AuthenticationService(IUserContext userContext)
             {
                 _userContext = userContext;
             }

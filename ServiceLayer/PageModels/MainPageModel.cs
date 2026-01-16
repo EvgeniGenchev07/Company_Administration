@@ -1,9 +1,10 @@
-using ServiceLayer.Services;
+using ApplicationLayer.Interfaces;
 using ApplicationLayer.ViewModels;
 using BusinessLayer.Entities;
 using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ServiceLayer.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -13,7 +14,7 @@ namespace ServiceLayer.PageModels;
 
 public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
 {
-    private readonly DatabaseService _dbService;
+    private readonly IDatabaseService _dbService;
     private bool _isBusy;
     private string _userName;
     private int _contractDays;
@@ -225,7 +226,7 @@ public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
     private List<Absence> _allAbsences = new();
 
 
-    public MainPageModel(DatabaseService dbService)
+    public MainPageModel(IDatabaseService dbService)
     {
         _dbService = dbService;
         _currentDate = DateTime.Now;

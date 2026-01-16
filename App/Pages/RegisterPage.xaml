@@ -1,7 +1,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="App.Pages.RegisterPage"
-             xmlns:viewmodel="clr-namespace:App.PageModels"
+             xmlns:viewmodel="clr-namespace:ServiceLayer.PageModels;assembly=ServiceLayer"
              x:DataType="viewmodel:RegisterPageModel"
              NavigationPage.HasNavigationBar="False"
              BackgroundColor="{AppThemeBinding Light={StaticResource LightBackground}, Dark={StaticResource DarkBackground}}">

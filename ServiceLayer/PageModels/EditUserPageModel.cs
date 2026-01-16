@@ -1,4 +1,5 @@
-﻿using ApplicationLayer.ViewModels;
+﻿using ApplicationLayer.Interfaces;
+using ApplicationLayer.ViewModels;
 using BusinessLayer;
 using BusinessLayer.Entities;
 using BusinessLayer.Enums;
@@ -11,7 +12,7 @@ namespace ServiceLayer.PageModels;
 
 public class EditUserPageModel : INotifyPropertyChanged
 {
-    private readonly DatabaseService _dbService;
+    private readonly IDatabaseService _dbService;
     private bool _isBusy;
     private string _name = string.Empty;
     private string _email = string.Empty;
@@ -117,7 +118,7 @@ public class EditUserPageModel : INotifyPropertyChanged
     public ICommand UpdateUserCommand { get; }
     public ICommand CancelCommand { get; }
 
-    public EditUserPageModel(DatabaseService dbService)
+    public EditUserPageModel(IDatabaseService dbService)
     {
         _dbService = dbService;
 

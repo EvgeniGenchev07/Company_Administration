@@ -1,4 +1,5 @@
-﻿using BusinessLayer;
+﻿using ApplicationLayer.Interfaces;
+using BusinessLayer;
 using BusinessLayer.Entities;
 using BusinessLayer.Enums;
 using ServiceLayer.Services;
@@ -16,7 +17,7 @@ public class RegisterPageModel : INotifyPropertyChanged
     private bool _isBusy;
     private bool _isEnabled;
     private bool _isPasswordHidden = true;
-    private readonly DatabaseService _dbService;
+    private readonly IDatabaseService _dbService;
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -88,7 +89,7 @@ public class RegisterPageModel : INotifyPropertyChanged
     public ICommand RegisterCommand { get; }
     public ICommand TogglePasswordCommand { get; }
 
-    public RegisterPageModel(DatabaseService dbService)
+    public RegisterPageModel(IDatabaseService dbService)
     {
         RegisterCommand = new Command(async () => await RegisterAsync(), CanRegister);
         TogglePasswordCommand = new Command(() => IsPasswordHidden = !IsPasswordHidden);

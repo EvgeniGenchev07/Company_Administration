@@ -6,12 +6,13 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.Input;
+using ApplicationLayer.Interfaces;
 
 namespace ServiceLayer.PageModels;
 
 public partial class AbsenceDetailsPageModel : INotifyPropertyChanged
 {
-    private readonly DatabaseService _dbService;
+    private readonly IDatabaseService _dbService;
     private bool _isBusy;
     private AbsenceViewModel _absence;
 
@@ -79,7 +80,7 @@ public partial class AbsenceDetailsPageModel : INotifyPropertyChanged
     }
 
 
-    public AbsenceDetailsPageModel(DatabaseService dbService)
+    public AbsenceDetailsPageModel(IDatabaseService dbService)
     {
         _dbService = dbService;
 

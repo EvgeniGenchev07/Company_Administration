@@ -1,4 +1,5 @@
-﻿using BusinessLayer;
+﻿using ApplicationLayer.Interfaces;
+using BusinessLayer;
 using BusinessLayer.Entities;
 using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,7 +11,7 @@ namespace ServiceLayer.PageModels
 {
     public partial class RequestPageModel : ObservableObject
     {
-        private readonly DatabaseService _dbService;
+        private readonly IDatabaseService _dbService;
 
         [ObservableProperty]
         string _organization = "ЕНЕРГИЙНА АГЕНЦИЯ-ПЛОВДИВ";
@@ -89,7 +90,7 @@ namespace ServiceLayer.PageModels
         [ObservableProperty]
         private bool _isBusy;
 
-        public RequestPageModel(DatabaseService dbService)
+        public RequestPageModel(IDatabaseService dbService)
         {
             _dbService = dbService;
             LoadUserData();
