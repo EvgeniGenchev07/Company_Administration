@@ -1,14 +1,18 @@
-using App.PageModels;
-using App.ViewModels;
+using ServiceLayer.PageModels;
+using ApplicationLayer.ViewModels;
+using BusinessLayer.Entities;
 
 namespace App.Pages
 {
+    [QueryProperty(nameof(BusinessTrip), "BusinessTrip")]
     public partial class BusinessTripDetailsPage : ContentPage
     {
-        public static BusinessTripViewModel SelectedBusinessTrip { get; set; }
+        
+        public BusinessTripViewModel BusinessTrip { get; set; }
 
         public BusinessTripDetailsPage(BusinessTripDetailsPageModel businessTripDetailsPageModel)
         {
+            BusinessTripDetailsPageModel.SelectedBusinessTrip = BusinessTrip;
             BindingContext = businessTripDetailsPageModel;
             InitializeComponent();
         }

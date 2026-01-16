@@ -1,11 +1,12 @@
-using App.Pages;
-using App.ViewModels;
-using BusinessLayer;
+using ApplicationLayer.ViewModels;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ServiceLayer.Services;
 using System.Collections.ObjectModel;
 
-namespace App.PageModels
+namespace ServiceLayer.PageModels
 {
     public partial class BusinessTripsPageModel : ObservableObject
     {
@@ -65,7 +66,7 @@ namespace App.PageModels
         [RelayCommand]
         private void LoadBusinessTrips()
         {
-            if (App.User?.BusinessTrips == null)
+            if (DatabaseService.User?.BusinessTrips == null)
             {
                 AllBusinessTrips.Clear();
                 FilteredBusinessTrips.Clear();
@@ -77,12 +78,12 @@ namespace App.PageModels
             try
             {
                 AllBusinessTrips.Clear();
-                foreach (var trip in App.User.BusinessTrips)
+                foreach (var trip in DatabaseService.User.BusinessTrips)
                 {
                     AllBusinessTrips.Add(trip);
                 }
 
-                UserName = App.User.Name;
+                UserName = DatabaseService.User.Name;
                 ApplyFilters();
                 HasResults = FilteredBusinessTrips.Count > 0;
             }
@@ -172,8 +173,10 @@ namespace App.PageModels
         {
             if (businessTrip != null)
             {
-                BusinessTripDetailsPage.SelectedBusinessTrip = new BusinessTripViewModel(businessTrip);
-                await Shell.Current.GoToAsync("//businesstripdetails");
+                await Shell.Current.GoToAsync("//businesstripdetails", new Dictionary<string, object>
+                {
+                    ["BusinessTrip"] = new BusinessTripViewModel(businessTrip)
+                });
             }
         }
 

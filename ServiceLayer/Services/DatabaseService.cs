@@ -1,21 +1,26 @@
 ﻿using BusinessLayer;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
 using DataLayer;
+using DataLayer.Repositories;
+using ServiceLayer.Services;
 using System.Text;
 using System.Text.Json;
-namespace App.Services
+namespace ServiceLayer.Services
 {
     public class DatabaseService
     {
-        private readonly AuthenticationContext _authenticationContext;
+        private readonly AuthenticationService _authenticationService;
         private readonly BusinessTripContext _businessTripContext;
         private readonly HolidayDayContext _holidayDayContext;
         private readonly UserContext _userContext;
         private readonly AbsenceContext _absenceContext;
+        internal static User User;
 
-        public DatabaseService(AuthenticationContext authenticationContext, BusinessTripContext businessTripContext,
+        public DatabaseService(AuthenticationService authenticationContext, BusinessTripContext businessTripContext,
             HolidayDayContext holidayDayContext, UserContext userContext, AbsenceContext absenceContext)
         {
-            _authenticationContext = authenticationContext ?? throw new ArgumentNullException(nameof(authenticationContext));
+            _authenticationService = authenticationContext ?? throw new ArgumentNullException(nameof(authenticationContext));
             _businessTripContext = businessTripContext ?? throw new ArgumentNullException(nameof(businessTripContext));
             _holidayDayContext = holidayDayContext ?? throw new ArgumentNullException(nameof(holidayDayContext));
             _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
@@ -27,7 +32,7 @@ namespace App.Services
             {
                 return null;
             }
-            User user = _authenticationContext.Authenticate(email, password);
+            User user = await  _authenticationService.Authenticate(email, password);
             return user;
         }
 
@@ -46,7 +51,7 @@ namespace App.Services
 
         public async Task<List<BusinessTrip>> GetAllBusinessTripsAsync()
         {
-            var businessTrips = _businessTripContext.GetAll();
+            var businessTrips = await _businessTripContext.GetAll();
             return businessTrips ?? new List<BusinessTrip>();
         }
 
@@ -58,15 +63,14 @@ namespace App.Services
                 return false;
             }
 
-            if (_businessTripContext.Delete(id))
+            if (await _businessTripContext.Delete(id))
             {
-                User user = App.User;
-                if (user.BusinessTrips != null)
+                if (User.BusinessTrips != null)
                 {
-                    var tripToRemove = user.BusinessTrips.FirstOrDefault(t => t.Id == id);
+                    var tripToRemove = User.BusinessTrips.FirstOrDefault(t => t.Id == id);
                     if (tripToRemove != null)
                     {
-                        user.BusinessTrips.Remove(tripToRemove);
+                        User.BusinessTrips.Remove(tripToRemove);
                     }
                 }
                 return true;
@@ -76,7 +80,7 @@ namespace App.Services
         }
         public async Task<List<HolidayDay>> GetAllHolidayDaysAsync()
         {
-            var holidayDays = _holidayDayContext.GetAll();
+            var holidayDays = await _holidayDayContext.GetAll();
             return holidayDays ?? new List<HolidayDay>();
         }
 
@@ -86,7 +90,7 @@ namespace App.Services
             {
                 return new List<BusinessTrip>();
             }
-            var businessTrips = _businessTripContext.GetByUserId(userId);
+            var businessTrips = await _businessTripContext.GetByUserId(userId);
             return businessTrips ?? new List<BusinessTrip>();
         }
 
@@ -97,12 +101,12 @@ namespace App.Services
                 return new List<Absence>();
             }
 
-            var absences = _absenceContext.GetByUserId(userId);
+            var absences = await _absenceContext.GetByUserId(userId);
             return absences ?? new List<Absence>();
         }
-        public int CalculateHolidays(DateTime start,  int days)
+        public async Task<int> CalculateHolidays(DateTime start,  int days)
         {
-            var holidays = _holidayDayContext.GetAll();
+            var holidays = await _holidayDayContext.GetAll();
             int holidaysCount = holidays.Count(h => h.Date >= start && h.Date < start.AddDays(days));
             for (int i = 0; i < days; i++)
             {
@@ -117,7 +121,7 @@ namespace App.Services
             {
                 return false;
             }
-            User user = _userContext.GetById(absence.UserId);
+            User user =await _userContext.GetById(absence.UserId);
             if (user == null)
             {
                 return false;
@@ -126,15 +130,15 @@ namespace App.Services
             {
                 user.AbsenceDays -= absence.DaysTaken;
                 
-                if (!_userContext.Update(user))
+                if (! await _userContext.Update(user))
                 {
                     return false;
                 }
             }
-            if (_absenceContext.Create(absence))
+            if (await _absenceContext.Create(absence))
             {
-                App.User.Absences?.Add(absence);
-                App.User.AbsenceDays -= absence.DaysTaken;
+                User.Absences?.Add(absence);
+                User.AbsenceDays -= absence.DaysTaken;
                 MessagingCenter.Send<DatabaseService>(this, "AbsenceCreated");
                 return true;
             }
@@ -151,9 +155,9 @@ namespace App.Services
                 return false;
             }
 
-            if (_businessTripContext.Create(businessTrip))
+            if (await _businessTripContext.Create(businessTrip))
             {
-                App.User.BusinessTrips = _businessTripContext.GetByUserId(businessTrip.UserId);
+                User.BusinessTrips = await _businessTripContext.GetByUserId(businessTrip.UserId);
                 return true;
             }
             else
@@ -167,7 +171,7 @@ namespace App.Services
             {
                 return null;
             }
-            return _holidayDayContext.Create(holidayDay) ? holidayDay : null;
+            return await _holidayDayContext.Create(holidayDay) ? holidayDay : null;
         }
 
 
@@ -177,12 +181,12 @@ namespace App.Services
             {
                 return false;
             }
-            return _absenceContext.Delete(absenceId);
+            return await _absenceContext.Delete(absenceId);
         }
 
         public async Task<List<User>> GetAllUsersAsync()
         {
-            var users = _userContext.ReadAll();
+            var users = await _userContext.GetAll();
             return users ?? new List<User>();
         }
 
@@ -193,7 +197,7 @@ namespace App.Services
                 return false;
             }
             user.Id = Guid.NewGuid().ToString();
-            return _userContext.Create(user);
+            return await _userContext.Create(user);
         }
 
         public async Task<bool> UpdateUserAsync(User user)
@@ -202,7 +206,7 @@ namespace App.Services
             {
                 return false;
             }
-            return _userContext.Update(user);
+            return await _userContext.Update(user);
         }
 
         public async Task<bool> DeleteUserAsync(string userId)
@@ -212,12 +216,12 @@ namespace App.Services
                 return false;
             }
 
-            return _userContext.Delete(userId);
+            return await _userContext.Delete(userId);
         }
 
         public async Task<List<Absence>> GetAllAbsencesAsync()
         {
-            var absences = _absenceContext.GetAll();
+            var absences = await _absenceContext.GetAll();
             return absences ?? new List<Absence>();
         }
 
@@ -227,13 +231,13 @@ namespace App.Services
             {
                 return false;
             }
-            Absence absence = _absenceContext.GetById(absenceId);
+            Absence absence = await _absenceContext.GetById(absenceId);
             if (absence == null)
             {
                 return false;
             }
             absence.Status = AbsenceStatus.Approved;
-            return _absenceContext.Update(absence);
+            return await _absenceContext.Update(absence);
         }
 
         public async Task<bool> RejectAbsenceAsync(int absenceId)
@@ -242,13 +246,13 @@ namespace App.Services
             {
                 return false;
             }
-            Absence absence = _absenceContext.GetById(absenceId);
+            Absence absence = await _absenceContext.GetById(absenceId);
             if (absence == null)
             {
                 return false;
             }
             absence.Status = AbsenceStatus.Rejected;
-            User user = _userContext.GetById(absence.UserId);
+            User user = await _userContext.GetById(absence.UserId);
             if (user == null)
             {
                 return false;
@@ -256,12 +260,12 @@ namespace App.Services
             if (absence.Type == AbsenceType.PersonalLeave)
             {
                 user.AbsenceDays += absence.DaysTaken;
-                if (!_userContext.Update(user))
+                if (!await _userContext.Update(user))
                 {
                     return false;
                 }
             }
-            return _absenceContext.Update(absence);
+            return await _absenceContext.Update(absence);
         }
 
         public async Task<bool> ApproveBusinessTripAsync(int tripId)
@@ -270,13 +274,13 @@ namespace App.Services
             {
                 return false;
             }
-            BusinessTrip businessTrip = _businessTripContext.GetById(tripId);
+            BusinessTrip businessTrip = await _businessTripContext.GetById(tripId);
             if (businessTrip == null)
             {
                 return false;
             }
             businessTrip.Status = BusinessTripStatus.Approved;
-            return _businessTripContext.Update(businessTrip);
+            return await _businessTripContext.Update(businessTrip);
         }
 
         public async Task<bool> RejectBusinessTripAsync(int tripId)
@@ -285,13 +289,13 @@ namespace App.Services
             {
                 return false;
             }
-            BusinessTrip businessTrip = _businessTripContext.GetById(tripId);
+            BusinessTrip businessTrip = await _businessTripContext.GetById(tripId);
             if (businessTrip == null)
             {
                 return false;
             }
             businessTrip.Status = BusinessTripStatus.Rejected;
-            return _businessTripContext.Update(businessTrip);
+            return await _businessTripContext.Update(businessTrip);
         }
 
     }

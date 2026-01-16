@@ -1,6 +1,9 @@
 ﻿using BusinessLayer;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
+using Microsoft.Maui.Graphics;
 
-namespace App.ViewModels;
+namespace ApplicationLayer.ViewModels;
 
 public class AbsenceViewModel
 {

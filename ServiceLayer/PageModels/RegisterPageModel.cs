@@ -1,10 +1,12 @@
-﻿using App.Services;
-using BusinessLayer;
+﻿using BusinessLayer;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
+using ServiceLayer.Services;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace App.PageModels;
+namespace ServiceLayer.PageModels;
 
 public class RegisterPageModel : INotifyPropertyChanged
 {
@@ -129,7 +131,7 @@ public class RegisterPageModel : INotifyPropertyChanged
                 return;
             }
 
-            App.User = user;
+            DatabaseService.User = user;
             await Shell.Current.GoToAsync(user.Role == Role.Admin ? "//AdminPage" : "//MainPage");
 
             Email = string.Empty;

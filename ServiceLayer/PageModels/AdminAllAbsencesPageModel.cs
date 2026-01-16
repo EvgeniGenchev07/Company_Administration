@@ -1,16 +1,16 @@
-﻿using App.Pages;
-using App.Services;
-using App.ViewModels;
-using BusinessLayer;
-using ClosedXML.Excel;
-using CommunityToolkit.Maui.Storage;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using ServiceLayer.Services;
+using ApplicationLayer.ViewModels; 
+using BusinessLayer.Entities;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using CommunityToolkit.Mvvm.ComponentModel;
+using BusinessLayer.Enums;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Maui.Storage;
+using ClosedXML.Excel;
 
-namespace App.PageModels;
+namespace ServiceLayer.PageModels;
 
 public partial class AdminAllAbsencesPageModel : ObservableObject
 {
@@ -131,8 +131,10 @@ public partial class AdminAllAbsencesPageModel : ObservableObject
     {
         if (absence != null)
         {
-            AbsenceDetailsPage.SelectedAbsence = absence;
-            await Shell.Current.GoToAsync("AbsenceDetailsPage");
+            await Shell.Current.GoToAsync("AbsenceDetailsPage", new Dictionary<string, object>
+            {
+                ["Absence"] = absence
+            });
         }
     }
     [RelayCommand]

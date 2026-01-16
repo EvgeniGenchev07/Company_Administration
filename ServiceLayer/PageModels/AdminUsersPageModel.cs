@@ -1,12 +1,11 @@
-﻿using App.Pages;
-using App.Services;
-using App.ViewModels;
+﻿using ServiceLayer.Services;
+using ApplicationLayer.ViewModels;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace App.PageModels;
+namespace ServiceLayer.PageModels;
 
 public class AdminUsersPageModel : INotifyPropertyChanged
 {
@@ -80,7 +79,7 @@ public class AdminUsersPageModel : INotifyPropertyChanged
 
     }
 
-    internal async Task LoadUsersAsync()
+    public async Task LoadUsersAsync()
     {
         try
         {
@@ -146,8 +145,10 @@ public class AdminUsersPageModel : INotifyPropertyChanged
     {
         if (user != null)
         {
-            EditUserPage.SelectedUser = user;
-            await Shell.Current.GoToAsync("EditUserPage");
+            await Shell.Current.GoToAsync("EditUserPage", new Dictionary<string, object>
+            {
+                ["User"] = user
+            });
         }
     }
 

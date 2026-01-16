@@ -1,12 +1,12 @@
-﻿using App.PageModels;
-using App.Pages;
-using App.Services;
+﻿using App.Pages;
 using CommunityToolkit.Maui;
-using DataLayer;
+using DataLayer.Persistence;
 using DataLayer.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using ServiceLayer.PageModels;
+using ServiceLayer.Services;
 
 namespace App
 {
@@ -47,12 +47,12 @@ namespace App
             builder.Services.AddScoped<AbsenceContext>();
             builder.Services.AddScoped<UserContext>();
             builder.Services.AddScoped<HolidayDayContext>();
-            builder.Services.AddScoped<AuthenticationContext>();
+            builder.Services.AddScoped<AuthenticationService>();
             const string connectionString = "sfsfdf";
             builder.Services.AddScoped(_=>
             {
                 var connection = new MySqlConnection(connectionString);
-                return new EapDbContext(connection);
+                return new CompanyAdministrationDbContext(connection);
             });
             return builder.Build();
         }

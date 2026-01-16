@@ -1,4 +1,7 @@
-﻿namespace App;
+﻿using BusinessLayer.Entities;
+using System.Globalization;
+
+namespace App;
 
 public partial class App : Application
 {
@@ -8,7 +11,6 @@ public partial class App : Application
     {
         InitializeComponent();
         Current.UserAppTheme = AppTheme.Light;
-
         var culture = CultureInfo.CreateSpecificCulture("bg-BG");
         CultureInfo.DefaultThreadCurrentCulture = culture;
         CultureInfo.DefaultThreadCurrentUICulture = culture;

@@ -1,4 +1,4 @@
-using App.PageModels;
+using ServiceLayer.PageModels;
 
 namespace App.Pages
 {

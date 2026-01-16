@@ -1,6 +1,8 @@
 ﻿using BusinessLayer;
-
-namespace App.ViewModels
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
+using Microsoft.Maui.Graphics;
+namespace ApplicationLayer.ViewModels
 {
     public class BusinessTripViewModel
     {
@@ -51,9 +53,9 @@ namespace App.ViewModels
 
         public string CarOwnership => _trip.CarOwnership switch
         {
-            BusinessLayer.CarOwnerShip.Personal => "Личен автомобил",
-            BusinessLayer.CarOwnerShip.Company => "Фирмен автомобил",
-            BusinessLayer.CarOwnerShip.Rental => "Нает автомобил",
+            CarOwnerShip.Personal => "Личен автомобил",
+            CarOwnerShip.Company => "Фирмен автомобил",
+            CarOwnerShip.Rental => "Нает автомобил",
             _ => "Неизвестно"
         };
 

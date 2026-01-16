@@ -1,11 +1,13 @@
-﻿using App.Pages;
-using App.Services;
+﻿using ApplicationLayer.ViewModels;
 using BusinessLayer;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
+using ServiceLayer.Services;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace App.PageModels;
+namespace ServiceLayer.PageModels;
 
 public class EditUserPageModel : INotifyPropertyChanged
 {
@@ -21,6 +23,7 @@ public class EditUserPageModel : INotifyPropertyChanged
     private bool _isPasswordChanged = false;
     private string _passwordHash = string.Empty;
     public event PropertyChangedEventHandler PropertyChanged;
+    public static UserViewModel SelectedUser { get; set; }
 
     public string Name
     {
@@ -126,16 +129,15 @@ public class EditUserPageModel : INotifyPropertyChanged
 
     private void LoadUserData()
     {
-        if (EditUserPage.SelectedUser != null)
+        if (SelectedUser != null)
         {
-            var user = EditUserPage.SelectedUser;
-            _userId = user.Id;
-            Name = user.Name;
-            Email = user.Email;
-            _passwordHash = user.Password;
-            SelectedRole = user.Role == Role.Admin ? "Администратор" : "Служител";
-            ContractDays = user.ContractDays.ToString();
-            AbsenceDays = user.AbsenceDays.ToString();
+            _userId = SelectedUser.Id;
+            Name = SelectedUser.Name;
+            Email = SelectedUser.Email;
+            _passwordHash = SelectedUser.Password;
+            SelectedRole = SelectedUser.Role == Role.Admin ? "Администратор" : "Служител";
+            ContractDays = SelectedUser.ContractDays.ToString();
+            AbsenceDays = SelectedUser.AbsenceDays.ToString();
         }
     }
 

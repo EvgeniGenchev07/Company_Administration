@@ -1,19 +1,19 @@
-using App.Pages;
-using App.Services;
-using App.ViewModels;
-using BusinessLayer;
+using ApplicationLayer.ViewModels;
+using BusinessLayer.Enums;
+using BusinessLayer.Entities;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ServiceLayer.Services;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace App.PageModels
+namespace ServiceLayer.PageModels
 {
     public partial class BusinessTripDetailsPageModel : ObservableObject
     {
         private readonly DatabaseService _dbService;
         private readonly HttpClient _httpClient = new HttpClient();
-
+        public static BusinessTripViewModel SelectedBusinessTrip;
         [ObservableProperty]
         private BusinessTrip _businessTrip;
 
@@ -38,14 +38,14 @@ namespace App.PageModels
         public BusinessTripDetailsPageModel(){}
         public BusinessTripDetailsPageModel(DatabaseService service)
         {
-            BusinessTrip = BusinessTripDetailsPage.SelectedBusinessTrip.BusinessTrip;
+            BusinessTrip = SelectedBusinessTrip.BusinessTrip;
             _dbService = service;
             _originalBusinessTrip = CloneBusinessTrip(BusinessTrip);
             
         }
-        internal async void LoadData()
+        public async void LoadData()
         {
-            BusinessTrip = BusinessTripDetailsPage.SelectedBusinessTrip.BusinessTrip;
+            BusinessTrip = SelectedBusinessTrip.BusinessTrip;
             _originalBusinessTrip = CloneBusinessTrip(BusinessTrip);
             AdditionalExpences = BusinessTrip.AdditionalExpences;
             Wage = BusinessTrip.Wage;
@@ -115,7 +115,7 @@ namespace App.PageModels
             if(IsEditing)  await CancelEdit();
             if (!IsEditing)
             {
-                if (App.User.Role == Role.Admin)
+                if (DatabaseService.User.Role == Role.Admin)
                 {
                     await Shell.Current.GoToAsync("//AdminAllBusinessTripsPage");
                 }
@@ -159,7 +159,7 @@ namespace App.PageModels
                         isReturning = true;
                         ToggleEdit();
 
-                        if (App.User.Role == Role.Admin)
+                        if (DatabaseService.User.Role == Role.Admin)
                         {
                             await Shell.Current.GoToAsync("//AdminAllBusinessTripsPage");
                         }

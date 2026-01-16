@@ -1,7 +1,7 @@
-﻿using App.Pages;
-using App.Services;
-using App.ViewModels;
-using BusinessLayer;
+﻿using ServiceLayer.Services;
+using ApplicationLayer.ViewModels;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
@@ -10,7 +10,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace App.PageModels;
+namespace ServiceLayer.PageModels;
 
 public partial class AllAbsencesPageModel : ObservableObject, INotifyPropertyChanged
 {
@@ -160,9 +160,9 @@ public partial class AllAbsencesPageModel : ObservableObject, INotifyPropertyCha
         {
             IsBusy = true;
 
-            if (App.User != null)
+            if (DatabaseService.User != null)
             {
-                var absences = await _dbService.GetUserAbsencesAsync(App.User.Id);
+                var absences = await _dbService.GetUserAbsencesAsync(DatabaseService.User.Id);
                 var sortedAbsences = absences.OrderByDescending(a => a.Created).ToList();
 
                 _originalAbsences = sortedAbsences.Select(a => new AbsenceViewModel(a)).ToList();
@@ -252,8 +252,10 @@ public partial class AllAbsencesPageModel : ObservableObject, INotifyPropertyCha
     {
         if (absence != null)
         {
-            AbsenceDetailsPage.SelectedAbsence = absence;
-            await Shell.Current.GoToAsync("AbsenceDetailsPage");
+            await Shell.Current.GoToAsync("AbsenceDetailsPage", new Dictionary<string, object>
+            {
+                ["Absence"] = absence
+            });
         }
     }
 

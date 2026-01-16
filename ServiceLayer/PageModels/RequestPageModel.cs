@@ -1,10 +1,12 @@
-﻿using App.Services;
-using BusinessLayer;
+﻿using BusinessLayer;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ServiceLayer.Services;
 using System.Collections.ObjectModel;
 
-namespace App.PageModels
+namespace ServiceLayer.PageModels
 {
     public partial class RequestPageModel : ObservableObject
     {
@@ -95,9 +97,9 @@ namespace App.PageModels
 
         private void LoadUserData()
         {
-            if (App.User != null)
+            if (DatabaseService.User != null)
             {
-                EmployeeName = App.User.Name;
+                EmployeeName = DatabaseService.User.Name;
             }
         }
 
@@ -177,7 +179,7 @@ namespace App.PageModels
                     DepartureDate = TripEndDate,
                     ExpensesResponsibility = "Служител",
                     Created = DateTime.Now,
-                    UserId = App.User?.Id ?? string.Empty
+                    UserId = DatabaseService.User?.Id ?? string.Empty
                 };
 
                 var success = await _dbService.CreateBusinessTripAsync(businessTrip);

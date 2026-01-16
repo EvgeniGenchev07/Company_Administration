@@ -1,7 +1,7 @@
-using App.Pages;
-using App.Services;
-using App.ViewModels;
-using BusinessLayer;
+п»їusing ServiceLayer.Services;
+using ApplicationLayer.ViewModels;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
@@ -9,23 +9,13 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace App.PageModels;
+namespace ServiceLayer.PageModels;
 
-public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
+public partial class AdminPageModel : ObservableObject, INotifyPropertyChanged
 {
     private readonly DatabaseService _dbService;
-    private bool _isBusy;
-    private string _userName;
-    private int _contractDays;
-    private int _absenceDays;
-    private int _pendingTripsCount;
-    private int _pendingAbsencesCount;
-    private int _approvedAbsencesCount;
-    private int _approvedTripsCount;
-    private bool _noAbsences;
-    private bool _noBusinessTrips;
-    //calendar fields
     private DateTime _currentDate;
+    private bool _isBusy;
     private bool _isDaySelected;
     private string _selectedDayTitle;
     private CalendarDay _selectedDay;
@@ -37,103 +27,11 @@ public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    [ObservableProperty]
-    public ObservableCollection<AbsenceViewModel> recentAbsences = new();
-
-    [ObservableProperty]
-    public ObservableCollection<BusinessTripViewModel> recentBusinessTrips = new();
     public ObservableCollection<CalendarDay> CalendarDays { get; } = new();
     public ObservableCollection<BusinessTripViewModel> SelectedDayTrips { get; } = new();
     public ObservableCollection<AbsenceViewModel> SelectedDayAbsences { get; } = new();
 
     public string CurrentMonthYear => _currentDate.ToString("MMMM yyyy");
-
-    public string UserName
-    {
-        get => _userName;
-        set
-        {
-            _userName = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public int ContractDays
-    {
-        get => _contractDays;
-        set
-        {
-            _contractDays = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public int AbsenceDays
-    {
-        get => _absenceDays;
-        set
-        {
-            _absenceDays = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public int PendingTripsCount
-    {
-        get => _pendingTripsCount;
-        set
-        {
-            _pendingTripsCount = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public int ApprovedTripsCount
-    {
-        get => _approvedTripsCount;
-        set
-        {
-            _approvedTripsCount = value;
-            OnPropertyChanged();
-        }
-    }
-    public int PendingAbsencesCount
-    {
-        get => _pendingAbsencesCount;
-        set
-        {
-            _pendingAbsencesCount = value;
-            OnPropertyChanged();
-        }
-    }
-    public int ApprovedAbsencesCount
-    {
-        get => _approvedAbsencesCount;
-        set
-        {
-            _approvedAbsencesCount = value;
-            OnPropertyChanged();
-        }
-    }
-    public bool NoAbsences
-    {
-        get => _noAbsences;
-        set
-        {
-            _noAbsences = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool NoBusinessTrips
-    {
-        get => _noBusinessTrips;
-        set
-        {
-            _noBusinessTrips = value;
-            OnPropertyChanged();
-        }
-    }
 
     public bool IsBusy
     {
@@ -144,7 +42,7 @@ public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-    //Calendar properties
+
     public bool IsDaySelected
     {
         get => _isDaySelected;
@@ -205,11 +103,6 @@ public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
         }
     }
 
-    public ICommand RequestAbsenceCommand { get; }
-    public ICommand RequestBusinessTripCommand { get; }
-    public ICommand ViewAllAbsencesCommand { get; }
-    public ICommand ViewAllBusinessTripsCommand { get; }
-    //Month navigation commands
     public ICommand PreviousMonthCommand { get; }
     public ICommand NextMonthCommand { get; }
     public ICommand NavigateToUsersCommand { get; }
@@ -224,153 +117,48 @@ public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
     private List<BusinessTrip> _allBusinessTrips = new();
     private List<Absence> _allAbsences = new();
 
-
-    public MainPageModel(DatabaseService dbService)
+    public AdminPageModel(DatabaseService dbService)
     {
         _dbService = dbService;
         _currentDate = DateTime.Now;
 
-        //Calendar initialization
         PreviousMonthCommand = new Command(async () => await NavigateMonth(-1));
         NextMonthCommand = new Command(async () => await NavigateMonth(1));
         NavigateToUsersCommand = new Command(async () => await NavigateToUsersAsync());
         NavigateToAbsencesCommand = new Command(async () => await NavigateToAbsencesAsync());
         NavigateToTripsCommand = new Command(async () => await NavigateToTripsAsync());
+        LogoutCommand = new Command(async () => await LogoutAsync());
         AddHolidayCommand = new Command(async () => await AddHolidayAsync());
         DeleteCustomHolidayCommand = new Command(async () => await DeleteCustomHolidayAsync());
         ShowAddHolidayDialogCommand = new Command(() => IsHolidayDialogVisible = true);
         HideAddHolidayDialogCommand = new Command(() => IsHolidayDialogVisible = false);
 
-
-        RequestAbsenceCommand = new Command(async () => await RequestAbsenceAsync());
-        RequestBusinessTripCommand = new Command(async () => await RequestBusinessTripAsync());
-        ViewAllAbsencesCommand = new Command(async () => await ViewAllAbsencesAsync());
-        ViewAllBusinessTripsCommand = new Command(async () => await ViewAllBusinessTripsAsync());
-        LogoutCommand = new Command(async () => await LogoutAsync());
-        MessagingCenter.Subscribe<DatabaseService>(this, "AbsenceCreated", async (sender) =>
-        {
-            AbsenceDays = App.User.AbsenceDays;
-            OnPropertyChanged(nameof(AbsenceDays));
-        });
     }
-
-    internal async Task LoadDataAsync()
+    [RelayCommand]
+    private async Task StartNewAccountingYear()
     {
-        try
+        bool response = await Application.Current.MainPage.DisplayAlert("РџРѕС‚РІСЉСЂР¶РґРµРЅРёРµ", $"РЎРёРіСѓСЂРЅРё Р»Рё СЃС‚Рµ, С‡Рµ РёСЃРєР°С‚Рµ РґР° РѕС‚Р±РµР»РµР¶РёС‚Рµ РЅРѕРІР° СЃС‡РµС‚РѕРІРѕРґРЅР° РіРѕРґРёРЅР°?", "Р”Р°", "РћС‚РєР°Р·");
+        if (response)
         {
-            IsBusy = true;
-
-            if (App.User != null)
+            bool result = await _dbService.UpdateUserAbsenceBalance();
+            if (result)
             {
-                UserName = App.User.Name;
-                ContractDays = App.User.ContractDays;
-                AbsenceDays = App.User.AbsenceDays;
-                var businessTrips = App.User.BusinessTrips ?? new List<BusinessTrip>();
-                var recentTrips = businessTrips.OrderByDescending(t => t.Created).Take(5).ToList();
-
-                PendingTripsCount = businessTrips.Count(t => t.Status == BusinessTripStatus.Pending);
-                ApprovedTripsCount = businessTrips.Count(t => t.Status == BusinessTripStatus.Approved);
-
-                RecentBusinessTrips.Clear();
-                foreach (var trip in recentTrips)
-                {
-                    RecentBusinessTrips.Add(new BusinessTripViewModel(trip));
-                }
-
-                NoBusinessTrips = !recentTrips.Any();
-
-                var absences = App.User.Absences ?? new List<Absence>();
-                var recentAbsences = absences.OrderByDescending(a => a.Created).Take(5).ToList();
-
-                RecentAbsences.Clear();
-                foreach (var absence in recentAbsences)
-                {
-                    RecentAbsences.Add(new AbsenceViewModel(absence));
-                }
-                ApprovedAbsencesCount = RecentAbsences.Count(t => t.Status == AbsenceStatus.Approved);
-                PendingAbsencesCount = RecentAbsences.Count(t => t.Status == AbsenceStatus.Pending);
-                NoAbsences = !recentAbsences.Any();
-                //Calendar
-                IsBusy = true;
-                _allBusinessTrips = await _dbService.GetAllBusinessTripsAsync();
-                _allAbsences = await _dbService.GetAllAbsencesAsync();
-                _holidayDays = new ObservableCollection<HolidayDay>(await _dbService.GetAllHolidayDaysAsync());
-                _customHolidays = _holidayDays.Select(h => h.Date.Date).ToList();
-                GenerateCalendar();
+                await Application.Current.MainPage.DisplayAlert("РЈСЃРїРµС…", "РЎС‡РµС‚РѕРІРѕРґРЅР°С‚Р° РіРѕРґРёРЅР° Рµ СѓСЃРїРµС€РЅРѕ РѕС‚Р±РµР»СЏР·Р°РЅР°!", "OK");
+                await LoadDataAsync();
             }
-        }
-        catch (Exception ex)
-        {
-            await Application.Current.MainPage.DisplayAlert("Грешка", $"Неуспешно зареждане на данните: {ex.Message}", "OK");
-        }
-        finally
-        {
-            IsBusy = false;
+            else await Application.Current.MainPage.DisplayAlert("Р“СЂРµС€РєР°", "РќРµСѓСЃРїРµС€РЅРѕ РѕС‚Р±РµР»СЏР·РІР°РЅРµ РЅР° РЅРѕРІР°С‚Р° СЃС‡РµС‚РѕРІРѕРґРЅР° РіРѕРґРёРЅР°!", "OK");
         }
     }
 
-    private async Task RequestAbsenceAsync()
-    {
-        await Shell.Current.GoToAsync("AbsencePage");
-    }
-
-    private async Task RequestBusinessTripAsync()
-    {
-        await Shell.Current.GoToAsync("request");
-    }
-
-    private async Task ViewAllAbsencesAsync()
-    {
-        await Shell.Current.GoToAsync("AllAbsencesPage");
-    }
-
-    private async Task ViewAllBusinessTripsAsync()
-    {
-        await Shell.Current.GoToAsync("//businesstrips");
-    }
-    [RelayCommand]
-    private async Task AbsenceTapped(AbsenceViewModel absence)
-    {
-        if (absence != null)
-        {
-            AbsenceDetailsPage.SelectedAbsence = absence;
-            await Shell.Current.GoToAsync("AbsenceDetailsPage");
-        }
-    }
-    [RelayCommand]
-    private async Task BusinessTripTapped(BusinessTripViewModel businessTrip)
-    {
-        if (businessTrip != null)
-        {
-            BusinessTripDetailsPage.SelectedBusinessTrip = new BusinessTripViewModel(App.User?.BusinessTrips?.FirstOrDefault(t => t.Id == businessTrip.Id));
-            await Shell.Current.GoToAsync("//businesstripdetails");
-        }
-    }
-    private async Task LogoutAsync()
-    {
-        try
-        {
-            App.User = null;
-            await Shell.Current.GoToAsync("//register");
-        }
-        catch (Exception ex)
-        {
-            await Application.Current.MainPage.DisplayAlert("Грешка", $"Неуспешно излизане: {ex.Message}", "OK");
-        }
-    }
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-    //Calendar methods
     [RelayCommand]
     private async Task ItemTapped(BusinessTripViewModel businessTrip)
     {
         if (businessTrip != null)
         {
-            BusinessTripDetailsPage.SelectedBusinessTrip = businessTrip;
-            await Shell.Current.GoToAsync("//businesstripdetails");
+            await Shell.Current.GoToAsync("//businesstripdetails", new Dictionary<string, object>
+            {
+                ["BusinessTrip"] = businessTrip
+            });
         }
     }
     [RelayCommand]
@@ -378,10 +166,35 @@ public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
     {
         if (absence != null)
         {
-            AbsenceDetailsPage.SelectedAbsence = absence;
-            await Shell.Current.GoToAsync("AbsenceDetailsPage");
+            await Shell.Current.GoToAsync("AbsenceDetailsPage", new Dictionary<string, object>
+            {
+                ["Absence"] = absence
+            });
         }
     }
+
+
+    public async Task LoadDataAsync()
+    {
+        try
+        {
+            IsBusy = true;
+            _allBusinessTrips = await _dbService.GetAllBusinessTripsAsync();
+            _allAbsences = await _dbService.GetAllAbsencesAsync();
+            _holidayDays = new ObservableCollection<HolidayDay>(await _dbService.GetAllHolidayDaysAsync());
+            _customHolidays = _holidayDays.Select(h => h.Date.Date).ToList();
+            GenerateCalendar();
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert("Р“СЂРµС€РєР°", $"РќРµСѓСЃРїРµС€РЅРѕ Р·Р°СЂРµР¶РґР°РЅРµ РЅР° РґР°РЅРЅРёС‚Рµ: {ex.Message}", "OK");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     private async Task NavigateMonth(int direction)
     {
         _currentDate = _currentDate.AddMonths(direction);
@@ -450,7 +263,7 @@ public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
     {
         if (string.IsNullOrWhiteSpace(HolidayName))
         {
-            await Application.Current.MainPage.DisplayAlert("Грешка", "Моля въведете име на почивния ден!", "OK");
+            await Application.Current.MainPage.DisplayAlert("Р“СЂРµС€РєР°", "РњРѕР»СЏ РІСЉРІРµРґРµС‚Рµ РёРјРµ РЅР° РїРѕС‡РёРІРЅРёСЏ РґРµРЅ!", "OK");
             return;
         }
 
@@ -468,11 +281,11 @@ public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
             GenerateCalendar();
             IsHolidayDialogVisible = false;
             HolidayName = string.Empty;
-            await Application.Current.MainPage.DisplayAlert("Успех", "Почивния ден бе успешно добавен!", "OK");
+            await Application.Current.MainPage.DisplayAlert("РЈСЃРїРµС…", "РџРѕС‡РёРІРЅРёСЏ РґРµРЅ Р±Рµ СѓСЃРїРµС€РЅРѕ РґРѕР±Р°РІРµРЅ!", "OK");
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("Грешка", $"Неуспешно добавяне на почивен ден: {ex.Message}", "OK");
+            await Application.Current.MainPage.DisplayAlert("Р“СЂРµС€РєР°", $"РќРµСѓСЃРїРµС€РЅРѕ РґРѕР±Р°РІСЏРЅРµ РЅР° РїРѕС‡РёРІРµРЅ РґРµРЅ: {ex.Message}", "OK");
         }
         finally
         {
@@ -491,11 +304,11 @@ public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
             _customHolidays.Remove(SelectedDay.Date.Date);
             GenerateCalendar();
             IsDaySelected = false;
-            await Application.Current.MainPage.DisplayAlert("Success", "Почивният ден бе успешно изтрит!", "OK");
+            await Application.Current.MainPage.DisplayAlert("РЈСЃРїРµС…", "РџРѕС‡РёРІРЅРёСЏС‚ РґРµРЅ Р±Рµ СѓСЃРїРµС€РЅРѕ РёР·С‚СЂРёС‚!", "OK");
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("Грешка", $"Неуспешно изтриване: {ex.Message}", "OK");
+            await Application.Current.MainPage.DisplayAlert("Р“СЂРµС€РєР°", $"РќРµСѓСЃРїРµС€РЅРѕ РёР·С‚СЂРёРІР°РЅРµ: {ex.Message}", "OK");
         }
         finally
         {
@@ -558,5 +371,67 @@ public partial class MainPageModel : ObservableObject, INotifyPropertyChanged
         await Shell.Current.GoToAsync("//AdminAllBusinessTripsPage");
     }
 
+    private async Task LogoutAsync()
+    {
+        DatabaseService.User = null;
+        await Shell.Current.GoToAsync("//register");
+    }
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }
 
+public class CalendarDay
+{
+    public DateTime Date { get; set; }
+    public string DayNumber { get; set; }
+    public bool IsEmpty { get; set; }
+    public bool IsCurrentMonth { get; set; }
+    public bool IsToday { get; set; }
+    public bool IsSelected { get; set; }
+    public bool IsHoliday { get; set; }
+    public bool IsOfficialHoliday { get; set; }
+    public bool IsCustomHoliday { get; set; }
+    public bool HasBusinessTrips { get; set; }
+    public bool HasPendingTrips { get; set; }
+    public bool HasRejectedTrips { get; set; }
+    public bool HasApprovedAbsences { get; set; }
+    public bool HasPendingAbsences { get; set; }
+    public bool HasRejectedAbsences { get; set; }
+    public List<BusinessTrip> BusinessTrips { get; set; } = new();
+    public List<Absence> Absences { get; set; } = new();
+
+    public bool HasAnyTrips => HasBusinessTrips || HasPendingTrips || HasRejectedTrips;
+    public bool HasNoTrips => !HasAnyTrips;
+    public bool HasAnyAbsences => HasApprovedAbsences || HasPendingAbsences || HasRejectedAbsences;
+    public bool HasNoAbsences => !HasAnyAbsences;
+
+    public string HolidayName { get; set; }
+
+    public Color HolidayColor => IsOfficialHoliday ? Colors.LightPink :
+                               IsCustomHoliday ? Colors.LightBlue :
+                               Colors.Transparent;
+
+    public Color BackgroundColor
+    {
+        get
+        {
+            if (IsSelected) return Color.FromArgb("#4169E1");
+            if (IsHoliday) return IsOfficialHoliday ? Colors.LightPink : Colors.LightBlue;
+            return Colors.Transparent;
+        }
+    }
+
+    public Color TextColor
+    {
+        get
+        {
+            if (IsSelected) return Colors.Black;
+            if (!IsCurrentMonth) return Colors.Gray;
+            if (IsHoliday) return Colors.DarkRed;
+            return Colors.Black;
+        }
+    }
+}

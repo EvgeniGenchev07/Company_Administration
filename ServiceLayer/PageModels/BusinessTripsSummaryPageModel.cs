@@ -1,5 +1,5 @@
-﻿using App.Services;
-using App.ViewModels;
+﻿using ServiceLayer.Services;
+using ApplicationLayer.ViewModels;
 using BusinessLayer;
 using ClosedXML.Excel;
 using CommunityToolkit.Maui.Storage;
@@ -7,7 +7,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Globalization;
-namespace App.PageModels;
+using BusinessLayer.Enums;
+namespace ServiceLayer.PageModels;
 
 public partial class BusinessTripsSummaryPageModel : ObservableObject
 {

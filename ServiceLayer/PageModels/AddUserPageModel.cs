@@ -1,11 +1,13 @@
-﻿using App.Services;
+﻿using ServiceLayer.Services;
 using BusinessLayer;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Windows.Input;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
 
-namespace App.PageModels;
+namespace ServiceLayer.PageModels;
 
 public class AddUserPageModel : INotifyPropertyChanged
 {

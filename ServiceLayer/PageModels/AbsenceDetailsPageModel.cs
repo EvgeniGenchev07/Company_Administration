@@ -1,21 +1,22 @@
-using App.Pages;
-using App.Services;
-using App.ViewModels;
+using ServiceLayer.Services;
+using ApplicationLayer.ViewModels;
 using BusinessLayer;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using BusinessLayer.Enums;
+using CommunityToolkit.Mvvm.Input;
 
-namespace App.PageModels;
+namespace ServiceLayer.PageModels;
 
-public class AbsenceDetailsPageModel : INotifyPropertyChanged
+public partial class AbsenceDetailsPageModel : INotifyPropertyChanged
 {
     private readonly DatabaseService _dbService;
     private bool _isBusy;
     private AbsenceViewModel _absence;
 
     public event PropertyChangedEventHandler PropertyChanged;
-
+    public static AbsenceViewModel SelectedAbsence { get; set;  }
     public AbsenceViewModel Absence
     {
         get => _absence;
@@ -44,17 +45,17 @@ public class AbsenceDetailsPageModel : INotifyPropertyChanged
 
     public string StatusIcon => Absence?.Status switch
     {
-        BusinessLayer.AbsenceStatus.Pending => "\u23F3", // Pending
-        BusinessLayer.AbsenceStatus.Approved => "\u2713", // Approved
-        BusinessLayer.AbsenceStatus.Rejected => "\u274C", // Rejected
+        AbsenceStatus.Pending => "\u23F3", // Pending
+        AbsenceStatus.Approved => "\u2713", // Approved
+        AbsenceStatus.Rejected => "\u274C", // Rejected
         _ => "\u2753"
     };
 
     public string StatusDescription => Absence?.Status switch
     {
-        BusinessLayer.AbsenceStatus.Pending => "Твоята молба се разглежда от ръководството",
-        BusinessLayer.AbsenceStatus.Approved => "Твоята молбa бе одобрена",
-        BusinessLayer.AbsenceStatus.Rejected => "Твоята молба бе отхвърлена",
+        AbsenceStatus.Pending => "Твоята молба се разглежда от ръководството",
+        AbsenceStatus.Approved => "Твоята молбa бе одобрена",
+        AbsenceStatus.Rejected => "Твоята молба бе отхвърлена",
         _ => "Неизвестно състояние"
     };
 
@@ -63,9 +64,9 @@ public class AbsenceDetailsPageModel : INotifyPropertyChanged
     public string EndDateText => Absence != null ? $"{Absence.StartDate.AddDays(Absence.Days - 1):dd/MM/yyyy}" : string.Empty;
     public string CreatedText => Absence?.CreatedText ?? string.Empty;
 
-    public bool IsApproved => Absence?.Status == BusinessLayer.AbsenceStatus.Approved;
-    public bool IsRejected => Absence?.Status == BusinessLayer.AbsenceStatus.Rejected;
-    public bool CanEdit => Absence?.Status == BusinessLayer.AbsenceStatus.Pending; // Only pending requests can be edited
+    public bool IsApproved => Absence?.Status == AbsenceStatus.Approved;
+    public bool IsRejected => Absence?.Status == AbsenceStatus.Rejected;
+    public bool CanEdit => Absence?.Status == AbsenceStatus.Pending; // Only pending requests can be edited
 
     public bool IsBusy
     {
@@ -77,32 +78,17 @@ public class AbsenceDetailsPageModel : INotifyPropertyChanged
         }
     }
 
-    public ICommand BackCommand { get; }
-    public ICommand EditCommand { get; }
-    public ICommand CancelCommand { get; }
 
     public AbsenceDetailsPageModel(DatabaseService dbService)
     {
         _dbService = dbService;
 
-        BackCommand = new Command(async () => await BackAsync());
-        EditCommand = new Command(async () => await EditAsync());
-        CancelCommand = new Command(async () => await CancelAsync());
-
-        LoadAbsenceDetails();
+        Absence = SelectedAbsence;
     }
-
-    private void LoadAbsenceDetails()
+    [RelayCommand]
+    private async Task Back()
     {
-        if (AbsenceDetailsPage.SelectedAbsence != null)
-        {
-            Absence = AbsenceDetailsPage.SelectedAbsence;
-        }
-    }
-
-    private async Task BackAsync()
-    {
-        if (App.User.Role == Role.Admin)
+        if (DatabaseService.User.Role == Role.Admin)
         {
             await Shell.Current.GoToAsync("//AdminAllAbsencesPage");
         }
@@ -112,7 +98,8 @@ public class AbsenceDetailsPageModel : INotifyPropertyChanged
         }
     }
 
-    private async Task EditAsync()
+    [RelayCommand]
+    private async Task Edit()
     {
         if (Absence == null) return;
 
@@ -133,7 +120,8 @@ public class AbsenceDetailsPageModel : INotifyPropertyChanged
         }
     }
 
-    private async Task CancelAsync()
+    [RelayCommand]
+    private async Task Cancel()
     {
         if (Absence == null) return;
 

@@ -1,6 +1,8 @@
 ﻿using BusinessLayer;
-
-namespace App.ViewModels;
+using BusinessLayer.Entities;
+using BusinessLayer.Enums;
+using Microsoft.Maui.Graphics;
+namespace ApplicationLayer.ViewModels;
 
 public class UserViewModel
 {

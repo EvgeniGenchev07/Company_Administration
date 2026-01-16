@@ -1,7 +1,6 @@
-﻿using App.Pages;
-using App.Services;
-using App.ViewModels;
-using BusinessLayer;
+﻿using ServiceLayer.Services;
+using ApplicationLayer.ViewModels;
+using BusinessLayer.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
@@ -9,7 +8,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace App.PageModels;
+namespace ServiceLayer.PageModels;
 
 public partial class AdminAllBusinessTripsPageModel : ObservableObject, INotifyPropertyChanged
 {
@@ -108,7 +107,7 @@ public partial class AdminAllBusinessTripsPageModel : ObservableObject, INotifyP
 
     }
 
-    internal async Task LoadBusinessTripsAsync()
+    public async Task LoadBusinessTripsAsync()
     {
         try
         {
@@ -141,8 +140,10 @@ public partial class AdminAllBusinessTripsPageModel : ObservableObject, INotifyP
     {
         if (businessTrip != null)
         {
-            BusinessTripDetailsPage.SelectedBusinessTrip = businessTrip;
-            await Shell.Current.GoToAsync("//businesstripdetails");
+            await Shell.Current.GoToAsync("//businesstripdetails", new Dictionary<string, object>
+            {
+                ["BusinessTrip"] = businessTrip
+            });
         }
     }
     private async Task ApproveTripAsync(BusinessTripViewModel trip)

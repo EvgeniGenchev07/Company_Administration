@@ -1,12 +1,14 @@
-﻿using App.Services;
+﻿using ServiceLayer.Services;
 using BusinessLayer;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using BusinessLayer.Enums;
+using BusinessLayer.Entities;
 
-namespace App.PageModels;
+namespace ServiceLayer.PageModels;
 
 public partial class AbsencePageModel : ObservableObject
 {
@@ -41,9 +43,9 @@ public partial class AbsencePageModel : ObservableObject
 
     public ObservableCollection<AbsenceTypeOption> AbsenceTypes { get; } = new()
     {
-        new AbsenceTypeOption { Value = BusinessLayer.AbsenceType.SickLeave, DisplayName = "Болнични" },
-        new AbsenceTypeOption { Value = BusinessLayer.AbsenceType.PersonalLeave, DisplayName = "Отпуск" },
-        new AbsenceTypeOption { Value = BusinessLayer.AbsenceType.Other, DisplayName = "Други" }
+        new AbsenceTypeOption { Value = AbsenceType.SickLeave, DisplayName = "Болнични" },
+        new AbsenceTypeOption { Value = AbsenceType.PersonalLeave, DisplayName = "Отпуск" },
+        new AbsenceTypeOption { Value = AbsenceType.Other, DisplayName = "Други" }
     };
 
     public DateTime MinimumDate => DateTime.Today;
@@ -61,10 +63,10 @@ public partial class AbsencePageModel : ObservableObject
 
     private void LoadUserData()
     {
-        if (App.User != null)
+        if (DatabaseService.User != null)
         {
-            EmployeeName = App.User.Name;
-            AvailableDays = App.User.AbsenceDays;
+            EmployeeName = DatabaseService.User.Name;
+            AvailableDays = DatabaseService.User.AbsenceDays;
         }
     }
 
@@ -92,9 +94,9 @@ public partial class AbsencePageModel : ObservableObject
                 DaysCount = (byte)((EndDate - StartDate).Days + 1),
                 DaysTaken = DurationDays,
                 StartDate = StartDate,
-                Status = BusinessLayer.AbsenceStatus.Pending,
+                Status = AbsenceStatus.Pending,
                 Created = DateTime.Now,
-                UserId = App.User?.Id ?? string.Empty
+                UserId = DatabaseService.User?.Id ?? string.Empty
             };
 
             var success = await _dbService.CreateAbsenceAsync(absence);
@@ -123,7 +125,7 @@ public partial class AbsencePageModel : ObservableObject
     {
         var errors = new List<string>();
         duration = (byte)((EndDate - StartDate).Days + 1);
-        if (SelectedAbsenceType?.Value == AbsenceType.PersonalLeave) duration -= (byte)_dbService.CalculateHolidays(StartDate, duration);
+        if (SelectedAbsenceType?.Value == AbsenceType.PersonalLeave) duration -= (byte)( _dbService.CalculateHolidays(StartDate, duration).Result);
         if (SelectedAbsenceType == null)
         {
             errors.Add("Моля избери причина за отсъствието");
@@ -173,6 +175,6 @@ public partial class AbsencePageModel : ObservableObject
 
 public class AbsenceTypeOption
 {
-    public BusinessLayer.AbsenceType Value { get; set; }
+    public AbsenceType Value { get; set; }
     public string DisplayName { get; set; } = string.Empty;
 }
