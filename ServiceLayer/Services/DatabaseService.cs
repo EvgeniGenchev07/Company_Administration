@@ -13,6 +13,7 @@ namespace ServiceLayer.Services
     public class DatabaseService : IDatabaseService
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly IProjectContext _projectContext;
         private readonly IBusinessTripContext _businessTripContext;
         private readonly IHolidayDayContext _holidayDayContext;
         private readonly IUserContext _userContext;
@@ -20,13 +21,14 @@ namespace ServiceLayer.Services
         internal static User User;
 
         public DatabaseService(IAuthenticationService authenticationContext, IBusinessTripContext businessTripContext,
-            IHolidayDayContext holidayDayContext, IUserContext userContext, IAbsenceContext absenceContext)
+            IHolidayDayContext holidayDayContext, IUserContext userContext, IAbsenceContext absenceContext,IProjectContext projectContext)
         {
             _authenticationService = authenticationContext ?? throw new ArgumentNullException(nameof(authenticationContext));
             _businessTripContext = businessTripContext ?? throw new ArgumentNullException(nameof(businessTripContext));
             _holidayDayContext = holidayDayContext ?? throw new ArgumentNullException(nameof(holidayDayContext));
             _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
             _absenceContext = absenceContext ?? throw new ArgumentNullException(nameof(absenceContext));
+            _projectContext= projectContext ?? throw new ArgumentNullException(nameof(projectContext));
         }
         public async Task<User> UserLogin(string email, string password)
         {
@@ -298,6 +300,121 @@ namespace ServiceLayer.Services
             }
             businessTrip.Status = BusinessTripStatus.Rejected;
             return await _businessTripContext.Update(businessTrip);
+        }
+        public async Task<List<Project>> GetAllProjectsAsync()
+        {
+            var projects = await _projectContext.GetAll();
+            return projects ?? new List<Project>();
+        }
+
+        public async Task<Project> GetProjectByIdAsync(int id)
+        {
+            if (id <= 0)
+            {
+                return null;
+            }
+
+            var project = await _projectContext.GetById(id);
+
+            return project;
+        }
+
+        public async Task<bool> CreateProjectAsync(Project project)
+        {
+            if (project == null || string.IsNullOrEmpty(project.Name))
+            {
+                return false;
+            }
+
+            return await _projectContext.Create(project);
+        }
+
+        public async Task<bool> UpdateProjectAsync(Project project)
+        {
+            if (project == null || project.Id <= 0 || string.IsNullOrEmpty(project.Name))
+            {
+                return false;
+            }
+
+            return await _projectContext.Update(project);
+        }
+
+        public async Task<bool> DeleteProjectAsync(int id)
+        {
+            if (id <= 0)
+            {
+                return false;
+            }
+
+            return await _projectContext.Delete(id);
+        }
+
+        public async Task<bool> AddUserToProjectAsync(int projectId, string userId)
+        {
+            if (projectId <= 0 || string.IsNullOrEmpty(userId))
+            {
+                return false;
+            }
+
+            var project = await _projectContext.GetById(projectId);
+            if (project == null)
+            {
+                return false;
+            }
+
+            var user = await _userContext.GetById(userId);
+            if (user == null)
+            {
+                return false;
+            }
+
+            if (project.Users == null)
+            {
+                project.Users = new List<User>();
+            }
+
+            if (project.Users.Any(u => u.Id == userId))
+            {
+                return false;
+            }
+
+            project.Users.Add(user);
+
+            return await _projectContext.Update(project);
+        }
+
+        public async Task<bool> RemoveUserFromProjectAsync(int projectId, string userId)
+        {
+            if (projectId <= 0 || string.IsNullOrEmpty(userId))
+            {
+                return false;
+            }
+
+            var project = await _projectContext.GetById(projectId);
+            if (project == null || project.Users == null)
+            {
+                return false;
+            }
+
+            var userToRemove = project.Users.FirstOrDefault(u => u.Id == userId);
+            if (userToRemove == null)
+            {
+                return false; 
+            }
+
+            project.Users.Remove(userToRemove);
+            return await _projectContext.Update(project);
+        }
+
+        public async Task<List<User>> GetProjectUsersAsync(int projectId)
+        {
+            if (projectId <= 0)
+            {
+                return new List<User>();
+            }
+
+            var project = await _projectContext.GetById(projectId);
+            return project?.Users ?? new List<User>();
         }
 
     }

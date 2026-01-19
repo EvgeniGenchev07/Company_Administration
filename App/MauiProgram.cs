@@ -44,12 +44,14 @@ namespace App
             builder.Services.AddTransientWithShellRoute<BusinessTripsPage, BusinessTripsPageModel>("businesstrips");
             builder.Services.AddTransientWithShellRoute<BusinessTripsSummaryPage, BusinessTripsSummaryPageModel>("BusinessTripsSummaryPage");
             builder.Services.AddTransientWithShellRoute<BusinessTripDetailsPage, BusinessTripDetailsPageModel>("businesstripdetails");
+            builder.Services.AddTransientWithShellRoute<AddProjectPage,AddProjectPageModel>("AddProjectPage");
             builder.Services.AddScoped<IDatabaseService,DatabaseService>();
             builder.Services.AddScoped<IAuthenticationService,AuthenticationService>();
             builder.Services.AddScoped<IBusinessTripContext, BusinessTripContext>();
             builder.Services.AddScoped<IAbsenceContext,AbsenceContext>();
             builder.Services.AddScoped<IUserContext,UserContext>();
             builder.Services.AddScoped<IHolidayDayContext,HolidayDayContext>();
+            builder.Services.AddScoped<IProjectContext, ProjectContext>();
             const string connectionString = "sfsfdf";
             builder.Services.AddScoped(_=>
             {

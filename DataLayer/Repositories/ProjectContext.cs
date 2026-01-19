@@ -18,19 +18,39 @@ namespace DataLayer.Repositories
             {
                 try
                 {
-                    var command = new MySqlCommand(
+                    var projectCommand = new MySqlCommand(
                         "INSERT INTO Project (name, description, startDate, endDate) " +
                         "VALUES (@name, @description, @startDate, @endDate)",
                         _companyAdministrationDbContext.Connection);
 
-                    command.Parameters.AddWithValue("@name", project.Name);
-                    command.Parameters.AddWithValue("@description", project.Description ?? string.Empty);
-                    command.Parameters.AddWithValue("@startDate", project.StartDate);
-                    command.Parameters.AddWithValue("@endDate", project.EndDate);
+                    projectCommand.Parameters.AddWithValue("@name", project.Name);
+                    projectCommand.Parameters.AddWithValue("@description", project.Description ?? string.Empty);
+                    projectCommand.Parameters.AddWithValue("@startDate", project.StartDate);
+                    projectCommand.Parameters.AddWithValue("@endDate", project.EndDate);
 
-                    int rows = await command.ExecuteNonQueryAsync();
+                    await projectCommand.ExecuteNonQueryAsync();
+
+                    if (project.Users != null && project.Users.Count > 0)
+                    {
+                        var getLastIdCommand = new MySqlCommand("SELECT LAST_INSERT_ID()",
+                            _companyAdministrationDbContext.Connection);
+                        var projectId = Convert.ToInt32(await getLastIdCommand.ExecuteScalarAsync());
+
+                        foreach (var user in project.Users)
+                        {
+                            var userCommand = new MySqlCommand(
+                                "INSERT INTO ProjectUser (ProjectId, UserId) VALUES (@projectId, @userId)",
+                                _companyAdministrationDbContext.Connection);
+
+                            userCommand.Parameters.AddWithValue("@projectId", projectId);
+                            userCommand.Parameters.AddWithValue("@userId", user.Id);
+
+                            await userCommand.ExecuteNonQueryAsync();
+                        }
+                    }
+
                     _companyAdministrationDbContext.Close();
-                    return rows > 0;
+                    return true;
                 }
                 catch (Exception ex)
                 {
@@ -38,7 +58,8 @@ namespace DataLayer.Repositories
                     throw new Exception("Error creating project in the database.", ex);
                 }
             }
-            throw new Exception("Database connection is not established.");
+
+            return false;
         }
 
         public async Task<Project> GetById(int id)
