@@ -31,50 +31,60 @@
         WidthRequest="200"/>
             </Grid>
             <!-- Admin Navigation Buttons -->
-            <Grid ColumnDefinitions="*,*,*,*" Margin="0,10,0,0" ColumnSpacing="1">
+            <Grid ColumnDefinitions="*,*,*,*,*" Margin="0,10,0,0" ColumnSpacing="1">
                 <Border Grid.Column="0" 
-                    BackgroundColor="{StaticResource Primary}"
-                    Stroke="{StaticResource Primary}"
-                    StrokeThickness="1">
+                     BackgroundColor="{StaticResource Primary}"
+                     Stroke="{StaticResource Primary}"
+                     StrokeThickness="1">
                     <Button Text="Потребители" 
-                        Command="{Binding NavigateToUsersCommand}"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        FontSize="14"/>
+                         Command="{Binding NavigateToUsersCommand}"
+                         BackgroundColor="Transparent"
+                         TextColor="White"
+                         FontSize="14"/>
                 </Border>
                 <Border Grid.Column="1" 
-                    BackgroundColor="{StaticResource Primary}"
-                    Stroke="{StaticResource Primary}"
-                    StrokeThickness="1">
+                     BackgroundColor="{StaticResource Primary}"
+                     Stroke="{StaticResource Primary}"
+                     StrokeThickness="1">
                     <Button Text="Отсъствия" 
-                        Command="{Binding NavigateToAbsencesCommand}"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        FontSize="14"/>
+                         Command="{Binding NavigateToAbsencesCommand}"
+                         BackgroundColor="Transparent"
+                         TextColor="White"
+                         FontSize="14"/>
                 </Border>
                 <Border Grid.Column="2" 
-                    BackgroundColor="{StaticResource Primary}"
-                    Stroke="{StaticResource Primary}"
-                    StrokeThickness="1">
+                     BackgroundColor="{StaticResource Primary}"
+                     Stroke="{StaticResource Primary}"
+                     StrokeThickness="1">
                     <Button Text="Командировки" 
-                        Command="{Binding NavigateToTripsCommand}"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        FontSize="14"/>
+                         Command="{Binding NavigateToTripsCommand}"
+                         BackgroundColor="Transparent"
+                         TextColor="White"
+                         FontSize="14"/>
                 </Border>
                 <Border Grid.Column="3" 
-                    BackgroundColor="{StaticResource Error}"
-                    Stroke="{StaticResource Error}"
-                    StrokeThickness="1">
+                     BackgroundColor="{StaticResource Primary}"
+                     Stroke="{StaticResource Primary}"
+                     StrokeThickness="1">
+                    <Button Text="Проекти" 
+                         Command="{Binding NavigateToProjectsCommand}"
+                         BackgroundColor="Transparent"
+                         TextColor="White"
+                         FontSize="14"/>
+                </Border>
+                <Border Grid.Column="4" 
+                     BackgroundColor="{StaticResource Error}"
+                     Stroke="{StaticResource Error}"
+                     StrokeThickness="1">
                     <Button Text="Изход" 
-                        Command="{Binding LogoutCommand}"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        FontSize="14"/>
+                         Command="{Binding LogoutCommand}"
+                         BackgroundColor="Transparent"
+                         TextColor="White"
+                         FontSize="14"/>
                 </Border>
             </Grid>
 
-            
+
         </VerticalStackLayout>
 
         <!-- Calendar View -->

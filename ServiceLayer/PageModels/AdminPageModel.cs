@@ -109,6 +109,7 @@ public partial class AdminPageModel : ObservableObject, INotifyPropertyChanged
     public ICommand NavigateToUsersCommand { get; }
     public ICommand NavigateToAbsencesCommand { get; }
     public ICommand NavigateToTripsCommand { get; }
+    public ICommand NavigateToProjectsCommand { get; } // Added this command
     public ICommand LogoutCommand { get; }
     public ICommand AddHolidayCommand { get; }
     public ICommand DeleteCustomHolidayCommand { get; }
@@ -128,6 +129,7 @@ public partial class AdminPageModel : ObservableObject, INotifyPropertyChanged
         NavigateToUsersCommand = new Command(async () => await NavigateToUsersAsync());
         NavigateToAbsencesCommand = new Command(async () => await NavigateToAbsencesAsync());
         NavigateToTripsCommand = new Command(async () => await NavigateToTripsAsync());
+        NavigateToProjectsCommand = new Command(async () => await NavigateToProjectsAsync()); // Initialize the command
         LogoutCommand = new Command(async () => await LogoutAsync());
         AddHolidayCommand = new Command(async () => await AddHolidayAsync());
         DeleteCustomHolidayCommand = new Command(async () => await DeleteCustomHolidayAsync());
@@ -174,7 +176,6 @@ public partial class AdminPageModel : ObservableObject, INotifyPropertyChanged
         }
     }
 
-
     public async Task LoadDataAsync()
     {
         try
@@ -206,7 +207,6 @@ public partial class AdminPageModel : ObservableObject, INotifyPropertyChanged
 
     private void GenerateCalendar()
     {
-
         CalendarDays.Clear();
 
         var firstDayOfMonth = new DateTime(_currentDate.Year, _currentDate.Month, 1);
@@ -370,6 +370,12 @@ public partial class AdminPageModel : ObservableObject, INotifyPropertyChanged
     private async Task NavigateToTripsAsync()
     {
         await Shell.Current.GoToAsync("//AdminAllBusinessTripsPage");
+    }
+
+    // Add this method for navigating to Projects page
+    private async Task NavigateToProjectsAsync()
+    {
+        await Shell.Current.GoToAsync("//AddProjectPage");
     }
 
     private async Task LogoutAsync()

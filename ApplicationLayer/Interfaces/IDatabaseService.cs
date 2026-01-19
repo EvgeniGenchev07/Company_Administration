@@ -41,5 +41,6 @@ namespace ApplicationLayer.Interfaces
         Task<bool> ApproveBusinessTripAsync(int tripId);
 
         Task<bool> RejectBusinessTripAsync(int tripId);
+        Task<bool> CreateProjectAsync(Project project);
     }
 }
