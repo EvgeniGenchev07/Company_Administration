@@ -52,7 +52,7 @@ namespace App
             builder.Services.AddScoped<IUserContext,UserContext>();
             builder.Services.AddScoped<IHolidayDayContext,HolidayDayContext>();
             builder.Services.AddScoped<IProjectContext, ProjectContext>();
-            const string connectionString = "sfsfdf";
+            const string connectionString = "new_connection";
             builder.Services.AddScoped(_=>
             {
                 var connection = new MySqlConnection(connectionString);
