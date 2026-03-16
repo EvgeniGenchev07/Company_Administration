@@ -1,10 +1,7 @@
-﻿using ApplicationLayer.Interfaces;
+using ApplicationLayer.Interfaces;
 using BusinessLayer.Entities;
 using DataLayer.Interfaces.Repository;
-using DataLayer.Repositories;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,50 +10,55 @@ namespace ServiceLayer.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
-            private readonly IUserContext _userContext;
-            public AuthenticationService(IUserContext userContext)
+        private readonly IUserContext _userContext;
+
+        public AuthenticationService(IUserContext userContext)
+        {
+            _userContext = userContext;
+        }
+
+        private string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
             {
-                _userContext = userContext;
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
-            private string HashPassword(string password)
+        }
+
+        private bool VerifyPassword(string password, string hashedPassword)
+        {
+            var hashedInput = HashPassword(password);
+            return hashedInput.Equals(hashedPassword, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public async Task<User> Authenticate(string email, string password)
+        {
+            try
             {
-                using (MD5 md5 = MD5.Create())
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 {
-                    var hashedBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(password));
-                    return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
-                }
-            }
-
-            private bool VerifyPassword(string password, string hashedPassword)
-            {
-                var hashedInput = HashPassword(password);
-                return hashedInput.Equals(hashedPassword, StringComparison.OrdinalIgnoreCase);
-            }
-
-            public async Task<User> Authenticate(string email, string password)
-            {
-                try
-                {
-
-                    if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-                    {
-                        return null;
-                    }
-                    var user = await _userContext.GetByEmail(email);
-                    if (user == null)
-                    {
-                        return null;
-                    }
-                    if (VerifyPassword(password, user.Password))
-                    {
-                        return user;
-                    }
                     return null;
                 }
-                catch (Exception ex)
+
+                var user = await _userContext.GetByEmail(email);
+
+                if (user == null)
                 {
-                    throw new Exception("Authentication failed", ex);
+                    return null;
                 }
+
+                if (VerifyPassword(password, user.Password))
+                {
+                    return user;
+                }
+
+                return null;
             }
+            catch (Exception ex)
+            {
+                throw new Exception("Authentication failed", ex);
+            }
+        }
     }
 }
